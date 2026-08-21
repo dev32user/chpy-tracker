@@ -1,6 +1,567 @@
 {
   "ticker": "CHPY",
   "source": "https://yieldmaxetfs.com/our-etfs/chpy/",
-  "updatedAt": null,
-  "distributions": []
+  "updatedAt": "2026-08-21T02:46:08.629Z",
+  "distributions": [
+    {
+      "distributionPerShare": 0.5702,
+      "declaredDate": "2026-08-18",
+      "exDate": "2026-08-19",
+      "recordDate": "2026-08-19",
+      "payableDate": "2026-08-20",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.5472,
+      "declaredDate": "2026-08-11",
+      "exDate": "2026-08-12",
+      "recordDate": "2026-08-12",
+      "payableDate": "2026-08-13",
+      "rocPercent": 97.66
+    },
+    {
+      "distributionPerShare": 0.5292,
+      "declaredDate": "2026-08-04",
+      "exDate": "2026-08-05",
+      "recordDate": "2026-08-05",
+      "payableDate": "2026-08-06",
+      "rocPercent": 0
+    },
+    {
+      "distributionPerShare": 0.5428,
+      "declaredDate": "2026-07-28",
+      "exDate": "2026-07-29",
+      "recordDate": "2026-07-29",
+      "payableDate": "2026-07-30",
+      "rocPercent": 96.95
+    },
+    {
+      "distributionPerShare": 0.547,
+      "declaredDate": "2026-07-21",
+      "exDate": "2026-07-22",
+      "recordDate": "2026-07-22",
+      "payableDate": "2026-07-23",
+      "rocPercent": 0
+    },
+    {
+      "distributionPerShare": 0.5925,
+      "declaredDate": "2026-07-14",
+      "exDate": "2026-07-15",
+      "recordDate": "2026-07-15",
+      "payableDate": "2026-07-16",
+      "rocPercent": 0
+    },
+    {
+      "distributionPerShare": 0.6274,
+      "declaredDate": "2026-07-07",
+      "exDate": "2026-07-08",
+      "recordDate": "2026-07-08",
+      "payableDate": "2026-07-09",
+      "rocPercent": 59.6
+    },
+    {
+      "distributionPerShare": 0.6672,
+      "declaredDate": "2026-06-30",
+      "exDate": "2026-07-01",
+      "recordDate": "2026-07-01",
+      "payableDate": "2026-07-02",
+      "rocPercent": 0
+    },
+    {
+      "distributionPerShare": 0.7754,
+      "declaredDate": "2026-06-23",
+      "exDate": "2026-06-24",
+      "recordDate": "2026-06-24",
+      "payableDate": "2026-06-25",
+      "rocPercent": 0
+    },
+    {
+      "distributionPerShare": 0.7558,
+      "declaredDate": "2026-06-16",
+      "exDate": "2026-06-17",
+      "recordDate": "2026-06-17",
+      "payableDate": "2026-06-18",
+      "rocPercent": 0
+    },
+    {
+      "distributionPerShare": 0.6204,
+      "declaredDate": "2026-06-09",
+      "exDate": "2026-06-10",
+      "recordDate": "2026-06-10",
+      "payableDate": "2026-06-11",
+      "rocPercent": 24.22
+    },
+    {
+      "distributionPerShare": 0.7119,
+      "declaredDate": "2026-06-02",
+      "exDate": "2026-06-03",
+      "recordDate": "2026-06-03",
+      "payableDate": "2026-06-04",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.6684,
+      "declaredDate": "2026-05-26",
+      "exDate": "2026-05-27",
+      "recordDate": "2026-05-27",
+      "payableDate": "2026-05-28",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.6444,
+      "declaredDate": "2026-05-19",
+      "exDate": "2026-05-20",
+      "recordDate": "2026-05-20",
+      "payableDate": "2026-05-21",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.6629,
+      "declaredDate": "2026-05-12",
+      "exDate": "2026-05-13",
+      "recordDate": "2026-05-13",
+      "payableDate": "2026-05-14",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.6024,
+      "declaredDate": "2026-05-05",
+      "exDate": "2026-05-06",
+      "recordDate": "2026-05-06",
+      "payableDate": "2026-05-07",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.6041,
+      "declaredDate": "2026-04-28",
+      "exDate": "2026-04-29",
+      "recordDate": "2026-04-29",
+      "payableDate": "2026-04-30",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.5008,
+      "declaredDate": "2026-04-21",
+      "exDate": "2026-04-22",
+      "recordDate": "2026-04-22",
+      "payableDate": "2026-04-23",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.5384,
+      "declaredDate": "2026-04-14",
+      "exDate": "2026-04-15",
+      "recordDate": "2026-04-15",
+      "payableDate": "2026-04-16",
+      "rocPercent": 66.77
+    },
+    {
+      "distributionPerShare": 0.4406,
+      "declaredDate": "2026-04-07",
+      "exDate": "2026-04-08",
+      "recordDate": "2026-04-08",
+      "payableDate": "2026-04-09",
+      "rocPercent": 65.56
+    },
+    {
+      "distributionPerShare": 0.4089,
+      "declaredDate": "2026-03-31",
+      "exDate": "2026-04-01",
+      "recordDate": "2026-04-01",
+      "payableDate": "2026-04-02",
+      "rocPercent": 50.7
+    },
+    {
+      "distributionPerShare": 0.4912,
+      "declaredDate": "2026-03-24",
+      "exDate": "2026-03-25",
+      "recordDate": "2026-03-25",
+      "payableDate": "2026-03-26",
+      "rocPercent": 0
+    },
+    {
+      "distributionPerShare": 0.3851,
+      "declaredDate": "2026-03-17",
+      "exDate": "2026-03-18",
+      "recordDate": "2026-03-18",
+      "payableDate": "2026-03-19",
+      "rocPercent": 0
+    },
+    {
+      "distributionPerShare": 0.4384,
+      "declaredDate": "2026-03-10",
+      "exDate": "2026-03-11",
+      "recordDate": "2026-03-11",
+      "payableDate": "2026-03-12",
+      "rocPercent": 0
+    },
+    {
+      "distributionPerShare": 0.4577,
+      "declaredDate": "2026-03-03",
+      "exDate": "2026-03-04",
+      "recordDate": "2026-03-04",
+      "payableDate": "2026-03-05",
+      "rocPercent": 89.68
+    },
+    {
+      "distributionPerShare": 0.4686,
+      "declaredDate": "2026-02-24",
+      "exDate": "2026-02-25",
+      "recordDate": "2026-02-25",
+      "payableDate": "2026-02-26",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.5259,
+      "declaredDate": "2026-02-17",
+      "exDate": "2026-02-18",
+      "recordDate": "2026-02-18",
+      "payableDate": "2026-02-19",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.5293,
+      "declaredDate": "2026-02-10",
+      "exDate": "2026-02-11",
+      "recordDate": "2026-02-11",
+      "payableDate": "2026-02-12",
+      "rocPercent": 34.54
+    },
+    {
+      "distributionPerShare": 0.5253,
+      "declaredDate": "2026-02-03",
+      "exDate": "2026-02-04",
+      "recordDate": "2026-02-04",
+      "payableDate": "2026-02-05",
+      "rocPercent": 0
+    },
+    {
+      "distributionPerShare": 0.4826,
+      "declaredDate": "2026-01-27",
+      "exDate": "2026-01-28",
+      "recordDate": "2026-01-28",
+      "payableDate": "2026-01-29",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.5267,
+      "declaredDate": "2026-01-20",
+      "exDate": "2026-01-21",
+      "recordDate": "2026-01-21",
+      "payableDate": "2026-01-22",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.5196,
+      "declaredDate": "2026-01-13",
+      "exDate": "2026-01-14",
+      "recordDate": "2026-01-14",
+      "payableDate": "2026-01-15",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.504,
+      "declaredDate": "2026-01-06",
+      "exDate": "2026-01-07",
+      "recordDate": "2026-01-07",
+      "payableDate": "2026-01-08",
+      "rocPercent": 86.94
+    },
+    {
+      "distributionPerShare": 0.4401,
+      "declaredDate": "2025-12-30",
+      "exDate": "2025-12-31",
+      "recordDate": "2025-12-31",
+      "payableDate": "2026-01-02",
+      "rocPercent": 99.47
+    },
+    {
+      "distributionPerShare": 0.4403,
+      "declaredDate": "2025-12-23",
+      "exDate": "2025-12-24",
+      "recordDate": "2025-12-24",
+      "payableDate": "2025-12-26",
+      "rocPercent": 11.55
+    },
+    {
+      "distributionPerShare": 0.3786,
+      "declaredDate": "2025-12-16",
+      "exDate": "2025-12-17",
+      "recordDate": "2025-12-17",
+      "payableDate": "2025-12-18",
+      "rocPercent": 97.08
+    },
+    {
+      "distributionPerShare": 0.3984,
+      "declaredDate": "2025-12-09",
+      "exDate": "2025-12-10",
+      "recordDate": "2025-12-10",
+      "payableDate": "2025-12-11",
+      "rocPercent": 98.11
+    },
+    {
+      "distributionPerShare": 0.4347,
+      "declaredDate": "2025-12-02",
+      "exDate": "2025-12-03",
+      "recordDate": "2025-12-04",
+      "payableDate": "2025-12-04",
+      "rocPercent": 99.43
+    },
+    {
+      "distributionPerShare": 0.4394,
+      "declaredDate": "2025-11-25",
+      "exDate": "2025-11-26",
+      "recordDate": "2025-11-26",
+      "payableDate": "2025-11-28",
+      "rocPercent": 20
+    },
+    {
+      "distributionPerShare": 0.4175,
+      "declaredDate": "2025-11-18",
+      "exDate": "2025-11-19",
+      "recordDate": "2025-11-19",
+      "payableDate": "2025-11-20",
+      "rocPercent": 0
+    },
+    {
+      "distributionPerShare": 0.4544,
+      "declaredDate": "2025-11-11",
+      "exDate": "2025-11-12",
+      "recordDate": "2025-11-12",
+      "payableDate": "2025-11-13",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.4595,
+      "declaredDate": "2025-11-04",
+      "exDate": "2025-11-05",
+      "recordDate": "2025-11-05",
+      "payableDate": "2025-11-06",
+      "rocPercent": 0
+    },
+    {
+      "distributionPerShare": 0.4634,
+      "declaredDate": "2025-10-28",
+      "exDate": "2025-10-29",
+      "recordDate": "2025-10-29",
+      "payableDate": "2025-10-30",
+      "rocPercent": 59.13
+    },
+    {
+      "distributionPerShare": 0.5788,
+      "declaredDate": "2025-10-21",
+      "exDate": "2025-10-22",
+      "recordDate": "2025-10-22",
+      "payableDate": "2025-10-23",
+      "rocPercent": 67.85
+    },
+    {
+      "distributionPerShare": 0.4066,
+      "declaredDate": "2025-10-14",
+      "exDate": "2025-10-15",
+      "recordDate": "2025-10-15",
+      "payableDate": "2025-10-16",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.4307,
+      "declaredDate": "2025-10-08",
+      "exDate": "2025-10-09",
+      "recordDate": "2025-10-09",
+      "payableDate": "2025-10-10",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.4093,
+      "declaredDate": "2025-10-01",
+      "exDate": "2025-10-02",
+      "recordDate": "2025-10-02",
+      "payableDate": "2025-10-03",
+      "rocPercent": 40.93
+    },
+    {
+      "distributionPerShare": 0.4125,
+      "declaredDate": "2025-09-24",
+      "exDate": "2025-09-25",
+      "recordDate": "2025-09-25",
+      "payableDate": "2025-09-26",
+      "rocPercent": 95.46
+    },
+    {
+      "distributionPerShare": 0.4204,
+      "declaredDate": "2025-09-17",
+      "exDate": "2025-09-18",
+      "recordDate": "2025-09-18",
+      "payableDate": "2025-09-19",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.3838,
+      "declaredDate": "2025-09-10",
+      "exDate": "2025-09-11",
+      "recordDate": "2025-09-11",
+      "payableDate": "2025-09-12",
+      "rocPercent": 38.46
+    },
+    {
+      "distributionPerShare": 0.3825,
+      "declaredDate": "2025-09-03",
+      "exDate": "2025-09-04",
+      "recordDate": "2025-09-04",
+      "payableDate": "2025-09-05",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.3964,
+      "declaredDate": "2025-08-27",
+      "exDate": "2025-08-28",
+      "recordDate": "2025-08-28",
+      "payableDate": "2025-08-29",
+      "rocPercent": 97.43
+    },
+    {
+      "distributionPerShare": 0.3993,
+      "declaredDate": "2025-08-20",
+      "exDate": "2025-08-21",
+      "recordDate": "2025-08-21",
+      "payableDate": "2025-08-22",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.4056,
+      "declaredDate": "2025-08-13",
+      "exDate": "2025-08-14",
+      "recordDate": "2025-08-14",
+      "payableDate": "2025-08-15",
+      "rocPercent": 20.03
+    },
+    {
+      "distributionPerShare": 0.3893,
+      "declaredDate": "2025-08-06",
+      "exDate": "2025-08-07",
+      "recordDate": "2025-08-07",
+      "payableDate": "2025-08-08",
+      "rocPercent": 84.18
+    },
+    {
+      "distributionPerShare": 0.4151,
+      "declaredDate": "2025-07-30",
+      "exDate": "2025-07-31",
+      "recordDate": "2025-07-31",
+      "payableDate": "2025-08-01",
+      "rocPercent": 99.55
+    },
+    {
+      "distributionPerShare": 0.3723,
+      "declaredDate": "2025-07-23",
+      "exDate": "2025-07-24",
+      "recordDate": "2025-07-24",
+      "payableDate": "2025-07-25",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.373,
+      "declaredDate": "2025-07-16",
+      "exDate": "2025-07-17",
+      "recordDate": "2025-07-17",
+      "payableDate": "2025-07-18",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.3488,
+      "declaredDate": "2025-07-09",
+      "exDate": "2025-07-10",
+      "recordDate": "2025-07-10",
+      "payableDate": "2025-07-11",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.4223,
+      "declaredDate": "2025-07-02",
+      "exDate": "2025-07-03",
+      "recordDate": "2025-07-03",
+      "payableDate": "2025-07-07",
+      "rocPercent": 99.14
+    },
+    {
+      "distributionPerShare": 0.3767,
+      "declaredDate": "2025-06-25",
+      "exDate": "2025-06-26",
+      "recordDate": "2025-06-26",
+      "payableDate": "2025-06-27",
+      "rocPercent": 96.83
+    },
+    {
+      "distributionPerShare": 0.4056,
+      "declaredDate": "2025-06-18",
+      "exDate": "2025-06-20",
+      "recordDate": "2025-06-20",
+      "payableDate": "2025-06-23",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.4031,
+      "declaredDate": "2025-06-11",
+      "exDate": "2025-06-12",
+      "recordDate": "2025-06-12",
+      "payableDate": "2025-06-13",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.3455,
+      "declaredDate": "2025-06-04",
+      "exDate": "2025-06-05",
+      "recordDate": "2025-06-05",
+      "payableDate": "2025-06-06",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.386,
+      "declaredDate": "2025-05-28",
+      "exDate": "2025-05-29",
+      "recordDate": "2025-05-29",
+      "payableDate": "2025-05-30",
+      "rocPercent": 96.94
+    },
+    {
+      "distributionPerShare": 0.3991,
+      "declaredDate": "2025-05-21",
+      "exDate": "2025-05-22",
+      "recordDate": "2025-05-22",
+      "payableDate": "2025-05-23",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.382,
+      "declaredDate": "2025-05-14",
+      "exDate": "2025-05-15",
+      "recordDate": "2025-05-15",
+      "payableDate": "2025-05-16",
+      "rocPercent": 100
+    },
+    {
+      "distributionPerShare": 0.3767,
+      "declaredDate": "2025-05-07",
+      "exDate": "2025-05-08",
+      "recordDate": "2025-05-08",
+      "payableDate": "2025-05-09",
+      "rocPercent": 97.94
+    },
+    {
+      "distributionPerShare": 0.6229,
+      "declaredDate": "2025-04-30",
+      "exDate": "2025-05-01",
+      "recordDate": "2025-05-01",
+      "payableDate": "2025-05-02",
+      "rocPercent": 87.69
+    },
+    {
+      "distributionPerShare": 0.3454,
+      "declaredDate": "2025-04-23",
+      "exDate": "2025-04-24",
+      "recordDate": "2025-04-24",
+      "payableDate": "2025-04-25",
+      "rocPercent": 0.23
+    }
+  ]
 }
