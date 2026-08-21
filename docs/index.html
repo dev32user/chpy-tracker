@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHPY ROC History</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 1100px; margin: 40px auto; padding: 0 16px; }
+    h1 { margin-bottom: 4px; }
+    .meta { color: #666; margin-bottom: 24px; }
+    .summary { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+    .card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; min-width: 180px; }
+    .card strong { display: block; font-size: 1.3rem; margin-top: 6px; }
+    .chart { height: 420px; margin-bottom: 36px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid #ddd; text-align: right; white-space: nowrap; }
+    th:first-child, td:first-child { text-align: left; }
+    th { position: sticky; top: 0; background: white; }
+    .source { margin-top: 24px; color: #666; font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <h1>CHPY ROC History</h1>
+  <p class="meta">YieldMax CHPY 주간 분배금 및 Estimated ROC 이력</p>
+
+  <section class="summary">
+    <div class="card">최근 발표일<strong id="latest-date">-</strong></div>
+    <div class="card">최근 분배금<strong id="latest-distribution">-</strong></div>
+    <div class="card">최근 ROC<strong id="latest-roc">-</strong></div>
+    <div class="card">수집 건수<strong id="count">-</strong></div>
+  </section>
+
+  <div class="chart">
+    <canvas id="roc-chart"></canvas>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Declared Date</th>
+        <th>Distribution / Share</th>
+        <th>ROC</th>
+        <th>Ex Date</th>
+        <th>Record Date</th>
+        <th>Payable Date</th>
+      </tr>
+    </thead>
+    <tbody id="history-body"></tbody>
+  </table>
+
+  <p class="source">
+    Source:
+    <a id="source-link" target="_blank" rel="noopener noreferrer">YieldMax CHPY</a>
+    · ROC는 YieldMax가 공개한 estimated ROC를 그대로 표시하며 최종 세무상 분류는 변경될 수 있습니다.
+  </p>
+
+  <script type="module">
+    const response = await fetch("./data/history.json");
+    if (!response.ok) throw new Error("history.json을 불러오지 못했습니다.");
+
+    const data = await response.json();
+    const rows = data.distributions;
+    const latest = rows[0];
+
+    const money = (value) => `$${value.toFixed(4)}`;
+    const percent = (value) => value === null ? "-" : `${value.toFixed(2)}%`;
+
+    document.querySelector("#latest-date").textContent = latest.declaredDate;
+    document.querySelector("#latest-distribution").textContent = money(latest.distributionPerShare);
+    document.querySelector("#latest-roc").textContent = percent(latest.rocPercent);
+    document.querySelector("#count").textContent = rows.length;
+    document.querySelector("#source-link").href = data.source;
+
+    document.querySelector("#history-body").innerHTML = rows.map((row) => `
+      <tr>
+        <td>${row.declaredDate}</td>
+        <td>${money(row.distributionPerShare)}</td>
+        <td>${percent(row.rocPercent)}</td>
+        <td>${row.exDate}</td>
+        <td>${row.recordDate}</td>
+        <td>${row.payableDate}</td>
+      </tr>
+    `).join("");
+
+    const chronological = [...rows].reverse();
+
+    new Chart(document.querySelector("#roc-chart"), {
+      type: "line",
+      data: {
+        labels: chronological.map((row) => row.declaredDate),
+        datasets: [{
+          label: "Estimated ROC (%)",
+          data: chronological.map((row) => row.rocPercent)
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { min: 0, max: 100 }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

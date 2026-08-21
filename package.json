@@ -1,0 +1,17 @@
+{
+  "name": "chpy-roc-tracker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "update": "tsx src/update-history.ts",
+    "check": "tsx src/update-history.ts --check"
+  },
+  "dependencies": {
+    "cheerio": "^1.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.0"
+  }
+}
