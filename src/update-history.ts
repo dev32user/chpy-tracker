@@ -1,11 +1,9 @@
 import * as cheerio from "cheerio";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 
 const SOURCE_URL = "https://yieldmaxetfs.com/our-etfs/chpy/";
 const OUTPUT_FILE = "docs/data/history.json";
-const CHECK_ONLY = process.argv.includes("--check");
 
 type Distribution = {
   distributionPerShare: number;
@@ -23,112 +21,139 @@ type History = {
   distributions: Distribution[];
 };
 
-function clean(text: string): string {
-  return text.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
-}
-
 function parseMoney(value: string): number {
-  const n = Number(value.replace(/[$,]/g, ""));
-  if (!Number.isFinite(n)) throw new Error(`Invalid money value: ${value}`);
-  return n;
+  return Number(value.replace(/[$,]/g, "").trim());
 }
 
 function parsePercent(value: string): number | null {
-  const normalized = clean(value).replace("%", "");
+  const text = value.replace("%", "").trim();
+
   if (
-    normalized === "" ||
-    normalized === "-" ||
-    /^(n\/a|na|pending)$/i.test(normalized)
+    !text ||
+    text === "-" ||
+    /^(n\/a|na|pending)$/i.test(text)
   ) {
     return null;
   }
 
-  const n = Number(normalized);
-  if (!Number.isFinite(n)) {
-    throw new Error(`Invalid ROC value: ${value}`);
+  const valueNumber = Number(text);
+
+  if (!Number.isFinite(valueNumber)) {
+    return null;
   }
-  return n;
+
+  return valueNumber;
 }
 
 function parseDate(value: string): string {
-  const match = clean(value).match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (!match) throw new Error(`Invalid date value: ${value}`);
+  const match = value.trim().match(
+    /^(\d{2})\/(\d{2})\/(\d{4})$/
+  );
 
-  const [, mm, dd, yyyy] = match;
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-function findDistributionTable($: cheerio.CheerioAPI) {
-  const table = $("table").filter((_, element) => {
-    const headers = $(element)
-      .find("thead th, thead td")
-      .map((_, cell) => clean($(cell).text()).toUpperCase())
-      .get();
-
-    const allText = clean($(element).text()).toUpperCase();
-
-    return (
-      headers.some((header) => header.includes("DISTRIBUTION PER SHARE")) &&
-      (headers.some((header) => header === "ROC") || allText.includes("ROC"))
-    );
-  }).first();
-
-  if (!table.length) {
-    throw new Error(
-      "CHPY distribution table was not found. The YieldMax page structure may have changed."
-    );
+  if (!match) {
+    throw new Error(`Invalid date: ${value}`);
   }
 
-  return table;
+  const [, month, day, year] = match;
+
+  return `${year}-${month}-${day}`;
 }
 
 async function fetchHistory(): Promise<Distribution[]> {
   const response = await fetch(SOURCE_URL, {
     headers: {
-      "User-Agent": "CHPY-ROC-Tracker/1.0 (personal historical data monitor)"
+      "User-Agent": "Mozilla/5.0 CHPY-ROC-Tracker/1.0"
     }
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch CHPY page: HTTP ${response.status}`);
-  }
-
-  const html = await response.text();
-  const $ = cheerio.load(html);
-  const table = findDistributionTable($);
-  const rows: Distribution[] = [];
-
-  table.find("tbody tr").each((_, row) => {
-    const cells = $(row)
-      .find("th, td")
-      .map((_, cell) => clean($(cell).text()))
-      .get();
-
-    if (cells.length < 6) return;
-
-    try {
-      rows.push({
-        distributionPerShare: parseMoney(cells[0]),
-        declaredDate: parseDate(cells[1]),
-        exDate: parseDate(cells[2]),
-        recordDate: parseDate(cells[3]),
-        payableDate: parseDate(cells[4]),
-        rocPercent: parsePercent(cells[5])
-      });
-    } catch {
-      // Ignore non-data rows, but fail below if no valid distribution rows exist.
-    }
-  });
-
-  if (rows.length === 0) {
     throw new Error(
-      "No valid CHPY distribution rows were parsed. Check the page structure."
+      `Failed to fetch CHPY page: HTTP ${response.status}`
     );
   }
 
-  const unique = new Map(rows.map((row) => [row.declaredDate, row]));
-  return [...unique.values()].sort(
-    (a, b) => b.declaredDate.localeCompare(a.declaredDate)
+  const html = await response.text();
+
+  // HTML 태그 제거 후 텍스트 기준으로 처리
+  const $ = cheerio.load(html);
+
+  const text = $.root()
+    .text()
+    .replace(/\u00a0/g, " ")
+    .replace(/\r/g, "")
+    .replace(/[ \t]+/g, " ");
+
+  const distributionsIndex =
+    text.indexOf("DISTRIBUTION PER SHARE");
+
+  if (distributionsIndex === -1) {
+    throw new Error(
+      "Distribution header was not found in CHPY page."
+    );
+  }
+
+  // Distribution 섹션부터 이후 텍스트만 사용
+  const distributionText =
+    text.substring(distributionsIndex);
+
+  /*
+   * 데이터 형식:
+   *
+   * $0.5702
+   * 08/18/2026
+   * 08/19/2026
+   * 08/19/2026
+   * 08/20/2026
+   * 100.00%
+   *
+   * 또는 HTML 구조상 값들이 한 줄로 이어져 있어도
+   * 정규식으로 직접 추출한다.
+   */
+
+  const rowPattern =
+    /\$([\d,]+\.\d+)\s+(\d{2}\/\d{2}\/\d{4})\s+(\d{2}\/\d{2}\/\d{4})\s+(\d{2}\/\d{2}\/\d{4})\s+(\d{2}\/\d{2}\/\d{4})\s+([\d.]+%|-|N\/A|NA|Pending)/gi;
+
+  const distributions: Distribution[] = [];
+
+  for (const match of distributionText.matchAll(rowPattern)) {
+    const [
+      ,
+      distributionPerShare,
+      declaredDate,
+      exDate,
+      recordDate,
+      payableDate,
+      rocPercent
+    ] = match;
+
+    distributions.push({
+      distributionPerShare: parseMoney(distributionPerShare),
+      declaredDate: parseDate(declaredDate),
+      exDate: parseDate(exDate),
+      recordDate: parseDate(recordDate),
+      payableDate: parseDate(payableDate),
+      rocPercent: parsePercent(rocPercent)
+    });
+  }
+
+  if (distributions.length === 0) {
+    throw new Error(
+      "No CHPY distribution rows were found. The page structure may have changed."
+    );
+  }
+
+  // declaredDate 기준 중복 제거
+  const unique = new Map<string, Distribution>();
+
+  for (const distribution of distributions) {
+    unique.set(
+      distribution.declaredDate,
+      distribution
+    );
+  }
+
+  return [...unique.values()].sort((a, b) =>
+    b.declaredDate.localeCompare(a.declaredDate)
   );
 }
 
@@ -142,13 +167,15 @@ async function main() {
     distributions
   };
 
-  if (CHECK_ONLY) {
-    console.log(JSON.stringify(history, null, 2));
-    return;
-  }
+  await mkdir(dirname(OUTPUT_FILE), {
+    recursive: true
+  });
 
-  await mkdir(dirname(OUTPUT_FILE), { recursive: true });
-  await writeFile(OUTPUT_FILE, JSON.stringify(history, null, 2) + "\n");
+  await writeFile(
+    OUTPUT_FILE,
+    JSON.stringify(history, null, 2) + "\n",
+    "utf-8"
+  );
 
   console.log(
     `Updated ${OUTPUT_FILE}: ${distributions.length} distributions collected.`
