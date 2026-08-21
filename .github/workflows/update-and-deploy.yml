@@ -7,7 +7,7 @@ on:
     # GitHub Actions cron uses UTC.
     - cron: "0 13-15 * * 2"
   push:
-    branches: ["main"]
+    branches: ["master"]
 
 permissions:
   contents: write
