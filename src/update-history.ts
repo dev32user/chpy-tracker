@@ -1,9 +1,25 @@
 import * as cheerio from "cheerio";
-import { mkdir, writeFile } from "node:fs/promises";
+import {
+  mkdir,
+  readFile,
+  writeFile
+} from "node:fs/promises";
 import { dirname } from "node:path";
+import {
+  generateOgImage
+} from "./generate-og-image.js";
 
-const SOURCE_URL = "https://yieldmaxetfs.com/our-etfs/chpy/";
-const OUTPUT_FILE = "docs/data/history.json";
+const SOURCE_URL =
+  "https://yieldmaxetfs.com/our-etfs/chpy/";
+
+const OUTPUT_FILE =
+  "docs/data/history.json";
+
+const INDEX_FILE =
+  "docs/index.html";
+
+const SITE_URL =
+  "https://dev32user.github.io/chpy-tracker/";
 
 type Distribution = {
   distributionPerShare: number;
@@ -37,13 +53,17 @@ function parseMoney(value: string): number {
   );
 
   if (!Number.isFinite(parsed)) {
-    throw new Error(`Invalid money value: ${value}`);
+    throw new Error(
+      `Invalid money value: ${value}`
+    );
   }
 
   return parsed;
 }
 
-function parsePercent(value: string): number | null {
+function parsePercent(
+  value: string
+): number | null {
   const normalized = clean(value)
     .replace(/%/g, "")
     .trim();
@@ -73,12 +93,17 @@ function parseDate(value: string): string {
   );
 
   if (!match) {
-    throw new Error(`Invalid date value: ${value}`);
+    throw new Error(
+      `Invalid date value: ${value}`
+    );
   }
 
   const [, month, day, year] = match;
 
-  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  return `${year}-${month.padStart(
+    2,
+    "0"
+  )}-${day.padStart(2, "0")}`;
 }
 
 function extractTables(
@@ -94,54 +119,81 @@ function extractTables(
       )
       .get();
 
-    console.log("TABLE HEADERS:", headers);
-
-    const hasDistributionHeader = headers.some(
-      (header) =>
-        header.includes("DISTRIBUTION") &&
-        header.includes("SHARE")
+    console.log(
+      "TABLE HEADERS:",
+      headers
     );
 
-    const hasRocHeader = headers.some(
-      (header) =>
-        header === "ROC" ||
-        header.includes("RETURN OF CAPITAL")
-    );
+    const hasDistributionHeader =
+      headers.some(
+        (header) =>
+          header.includes("DISTRIBUTION") &&
+          header.includes("SHARE")
+      );
 
-    if (!hasDistributionHeader && !hasRocHeader) {
+    const hasRocHeader =
+      headers.some(
+        (header) =>
+          header === "ROC" ||
+          header.includes("RETURN OF CAPITAL")
+      );
+
+    if (
+      !hasDistributionHeader &&
+      !hasRocHeader
+    ) {
       return;
     }
 
-    console.log("MATCHED DISTRIBUTION TABLE");
+    console.log(
+      "MATCHED DISTRIBUTION TABLE"
+    );
 
     $(table)
       .find("tbody tr")
       .each((_, row) => {
         const cells = $(row)
           .find("th, td")
-          .map((_, cell) => clean($(cell).text()))
+          .map((_, cell) =>
+            clean($(cell).text())
+          )
           .get();
 
-        console.log("ROW:", cells);
+        console.log(
+          "ROW:",
+          cells
+        );
 
         if (cells.length < 5) {
           return;
         }
 
         try {
-          const moneyIndex = cells.findIndex((value) =>
-            /^\$?[\d,]+\.\d+$/.test(value)
-          );
+          const moneyIndex =
+            cells.findIndex(
+              (value) =>
+                /^\$?[\d,]+\.\d+$/.test(
+                  value
+                )
+            );
 
-          const dateValues = cells.filter((value) =>
-            /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(value)
-          );
+          const dateValues =
+            cells.filter(
+              (value) =>
+                /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(
+                  value
+                )
+            );
 
-          const rocValue = cells.find((value) =>
-            /^\d+(?:\.\d+)?%$/.test(value) ||
-            value === "-" ||
-            /^n\/a$/i.test(value)
-          );
+          const rocValue =
+            cells.find(
+              (value) =>
+                /^\d+(?:\.\d+)?%$/.test(
+                  value
+                ) ||
+                value === "-" ||
+                /^n\/a$/i.test(value)
+            );
 
           if (
             moneyIndex === -1 ||
@@ -151,24 +203,37 @@ function extractTables(
           }
 
           distributions.push({
-            distributionPerShare: parseMoney(
-              cells[moneyIndex]
-            ),
-            declaredDate: parseDate(
-              dateValues[0]
-            ),
-            exDate: parseDate(
-              dateValues[1]
-            ),
-            recordDate: parseDate(
-              dateValues[2]
-            ),
-            payableDate: parseDate(
-              dateValues[3]
-            ),
-            rocPercent: rocValue
-              ? parsePercent(rocValue)
-              : null
+            distributionPerShare:
+              parseMoney(
+                cells[moneyIndex]
+              ),
+
+            declaredDate:
+              parseDate(
+                dateValues[0]
+              ),
+
+            exDate:
+              parseDate(
+                dateValues[1]
+              ),
+
+            recordDate:
+              parseDate(
+                dateValues[2]
+              ),
+
+            payableDate:
+              parseDate(
+                dateValues[3]
+              ),
+
+            rocPercent:
+              rocValue
+                ? parsePercent(
+                    rocValue
+                  )
+                : null
           });
         } catch (error) {
           console.log(
@@ -183,29 +248,46 @@ function extractTables(
   return distributions;
 }
 
-async function fetchHistory(): Promise<Distribution[]> {
-  console.log(`Fetching: ${SOURCE_URL}`);
+async function fetchHistory(): Promise<
+  Distribution[]
+> {
+  console.log(
+    `Fetching: ${SOURCE_URL}`
+  );
 
-  const response = await fetch(SOURCE_URL, {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0 Safari/537.36",
-      "Accept":
-        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      "Accept-Language":
-        "en-US,en;q=0.9"
-    },
-    redirect: "follow"
-  });
+  const response = await fetch(
+    SOURCE_URL,
+    {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0 Safari/537.36",
 
-  console.log("HTTP STATUS:", response.status);
+        "Accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+
+        "Accept-Language":
+          "en-US,en;q=0.9"
+      },
+
+      redirect: "follow"
+    }
+  );
+
+  console.log(
+    "HTTP STATUS:",
+    response.status
+  );
+
   console.log(
     "FINAL URL:",
     response.url
   );
+
   console.log(
     "CONTENT TYPE:",
-    response.headers.get("content-type")
+    response.headers.get(
+      "content-type"
+    )
   );
 
   if (!response.ok) {
@@ -214,19 +296,14 @@ async function fetchHistory(): Promise<Distribution[]> {
     );
   }
 
-  const html = await response.text();
+  const html =
+    await response.text();
 
   console.log(
     "HTML LENGTH:",
     html.length
   );
 
-  /*
-   * 중요한 진단 로그입니다.
-   *
-   * 현재 GitHub Actions가 실제로 어떤 HTML을 받고 있는지
-   * 확인하기 위해 주요 키워드 존재 여부를 출력합니다.
-   */
   const keywords = [
     "CHPY",
     "Distribution",
@@ -237,36 +314,45 @@ async function fetchHistory(): Promise<Distribution[]> {
     "wp-json"
   ];
 
-  console.log("KEYWORD CHECK:");
+  console.log(
+    "KEYWORD CHECK:"
+  );
 
-  for (const keyword of keywords) {
+  for (
+    const keyword of keywords
+  ) {
     console.log(
       `${keyword}:`,
       html.includes(keyword)
     );
   }
 
-  /*
-   * 응답 HTML의 앞부분을 로그에 출력합니다.
-   *
-   * 너무 길어지는 것을 방지하기 위해 5,000자까지만 출력합니다.
-   */
-  console.log("HTML PREVIEW START");
+  console.log(
+    "HTML PREVIEW START"
+  );
+
   console.log(
     html.substring(0, 5000)
   );
-  console.log("HTML PREVIEW END");
 
-  const $ = cheerio.load(html);
+  console.log(
+    "HTML PREVIEW END"
+  );
+
+  const $ =
+    cheerio.load(html);
 
   console.log(
     "TABLE COUNT:",
     $("table").length
   );
 
-  const distributions = extractTables($);
+  const distributions =
+    extractTables($);
 
-  if (distributions.length === 0) {
+  if (
+    distributions.length === 0
+  ) {
     throw new Error(
       [
         "No CHPY distribution rows were found.",
@@ -282,18 +368,70 @@ async function fetchHistory(): Promise<Distribution[]> {
     Distribution
   >();
 
-  for (const distribution of distributions) {
+  for (
+    const distribution of distributions
+  ) {
     unique.set(
       distribution.declaredDate,
       distribution
     );
   }
 
-  return [...unique.values()].sort(
+  return [
+    ...unique.values()
+  ].sort(
     (a, b) =>
       b.declaredDate.localeCompare(
         a.declaredDate
       )
+  );
+}
+
+async function updateOgMetadata(
+  imagePath: string
+): Promise<void> {
+  const indexHtml =
+    await readFile(
+      INDEX_FILE,
+      "utf-8"
+    );
+
+  const normalizedPath =
+    imagePath.replace(
+      /^docs\//,
+      ""
+    );
+
+  const imageUrl =
+    `${SITE_URL}${normalizedPath}`;
+
+  const updatedHtml =
+    indexHtml.replace(
+      /<!-- OG_IMAGE_URL_START -->[\s\S]*?<!-- OG_IMAGE_URL_END -->/,
+      [
+        "<!-- OG_IMAGE_URL_START -->",
+        `<meta property="og:image" content="${imageUrl}" />`,
+        `<meta name="twitter:image" content="${imageUrl}" />`,
+        "<!-- OG_IMAGE_URL_END -->"
+      ].join("\n")
+    );
+
+  if (
+    updatedHtml === indexHtml
+  ) {
+    throw new Error(
+      "OG image metadata markers were not found in docs/index.html."
+    );
+  }
+
+  await writeFile(
+    INDEX_FILE,
+    updatedHtml,
+    "utf-8"
+  );
+
+  console.log(
+    `Updated OG image URL: ${imageUrl}`
   );
 }
 
@@ -304,7 +442,8 @@ async function main(): Promise<void> {
   const history: History = {
     ticker: "CHPY",
     source: SOURCE_URL,
-    updatedAt: new Date().toISOString(),
+    updatedAt:
+      new Date().toISOString(),
     distributions
   };
 
@@ -326,7 +465,33 @@ async function main(): Promise<void> {
   );
 
   console.log(
-    `Updated ${OUTPUT_FILE}: ${distributions.length} distributions collected.`
+    [
+      `Updated ${OUTPUT_FILE}:`,
+      `${distributions.length}`,
+      "distributions collected."
+    ].join(" ")
+  );
+
+  const latest =
+    distributions[0];
+
+  if (!latest) {
+    throw new Error(
+      "No latest distribution was found."
+    );
+  }
+
+  const imagePath =
+    await generateOgImage({
+      declaredDate:
+        latest.declaredDate,
+
+      rocPercent:
+        latest.rocPercent
+    });
+
+  await updateOgMetadata(
+    imagePath
   );
 }
 
