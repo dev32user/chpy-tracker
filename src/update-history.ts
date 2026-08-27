@@ -405,9 +405,20 @@ async function updateOgMetadata(
   const imageUrl =
     `${SITE_URL}${normalizedPath}`;
 
+  const ogImagePattern =
+    /<!-- OG_IMAGE_URL_START -->[\s\S]*?<!-- OG_IMAGE_URL_END -->/;
+
+  if (
+    !ogImagePattern.test(indexHtml)
+  ) {
+    throw new Error(
+      "OG image metadata markers were not found in docs/index.html."
+    );
+  }
+
   const updatedHtml =
     indexHtml.replace(
-      /<!-- OG_IMAGE_URL_START -->[\s\S]*?<!-- OG_IMAGE_URL_END -->/,
+      ogImagePattern,
       [
         "<!-- OG_IMAGE_URL_START -->",
         `<meta property="og:image" content="${imageUrl}" />`,
@@ -417,22 +428,22 @@ async function updateOgMetadata(
     );
 
   if (
-    updatedHtml === indexHtml
+    updatedHtml !== indexHtml
   ) {
-    throw new Error(
-      "OG image metadata markers were not found in docs/index.html."
+    await writeFile(
+      INDEX_FILE,
+      updatedHtml,
+      "utf-8"
+    );
+
+    console.log(
+      `Updated OG image URL: ${imageUrl}`
+    );
+  } else {
+    console.log(
+      `OG image URL is already up to date: ${imageUrl}`
     );
   }
-
-  await writeFile(
-    INDEX_FILE,
-    updatedHtml,
-    "utf-8"
-  );
-
-  console.log(
-    `Updated OG image URL: ${imageUrl}`
-  );
 }
 
 async function main(): Promise<void> {
@@ -485,7 +496,6 @@ async function main(): Promise<void> {
     await generateOgImage({
       declaredDate:
         latest.declaredDate,
-
       rocPercent:
         latest.rocPercent
     });
