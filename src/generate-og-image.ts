@@ -4,7 +4,10 @@ import {
   unlink
 } from "node:fs/promises";
 
-import { join } from "node:path";
+import {
+  join,
+  resolve
+} from "node:path";
 
 import sharp from "sharp";
 
@@ -46,38 +49,47 @@ function createFileName(
   return `chpy-${declaredDate}-${roc}.jpg`;
 }
 
-async function removeOldOgImages(): Promise<void> {
-  const files =
-    await readdir(
-      OUTPUT_DIR,
-      {
-        withFileTypes: true
-      }
-    );
+async function removeOldOgImages(
+  keepFile: string
+): Promise<void> {
+  const files = await readdir(
+    OUTPUT_DIR,
+    {
+      withFileTypes: true
+    }
+  );
+
+  const keepFilePath = resolve(
+    keepFile
+  );
 
   const imageExtensions =
     /\.(png|jpg|jpeg|webp)$/i;
 
-  const oldImages =
-    files.filter(
-      (file) =>
-        file.isFile() &&
-        imageExtensions.test(file.name)
+  for (const file of files) {
+    if (
+      !file.isFile() ||
+      !imageExtensions.test(file.name)
+    ) {
+      continue;
+    }
+
+    const filePath = join(
+      OUTPUT_DIR,
+      file.name
     );
 
-  for (
-    const image of oldImages
-  ) {
-    const imagePath =
-      join(
-        OUTPUT_DIR,
-        image.name
-      );
+    if (
+      resolve(filePath) ===
+      keepFilePath
+    ) {
+      continue;
+    }
 
-    await unlink(imagePath);
+    await unlink(filePath);
 
     console.log(
-      `Removed old OG image: ${imagePath}`
+      `Removed old OG image: ${filePath}`
     );
   }
 }
@@ -91,8 +103,6 @@ export async function generateOgImage(
       recursive: true
     }
   );
-
-  await removeOldOgImages();
 
   const fileName =
     createFileName(
@@ -189,6 +199,10 @@ export async function generateOgImage(
 </svg>
 `.trim();
 
+  /*
+   * 먼저 새 이미지를 생성합니다.
+   * 생성이 성공하기 전에는 기존 이미지를 삭제하지 않습니다.
+   */
   await sharp(
     Buffer.from(svg)
   )
@@ -203,6 +217,14 @@ export async function generateOgImage(
 
   console.log(
     `Generated OG image: ${outputFile}`
+  );
+
+  /*
+   * 새 이미지 생성이 성공한 후,
+   * 새 파일을 제외한 기존 OG 이미지를 삭제합니다.
+   */
+  await removeOldOgImages(
+    outputFile
   );
 
   return outputFile;
