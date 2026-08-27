@@ -2,8 +2,59 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
   <title>CHPY ROC History</title>
+
+  <meta
+    property="og:title"
+    content="CHPY ROC History"
+  />
+
+  <meta
+    property="og:description"
+    content="YieldMax CHPY 주간 분배금 및 Estimated ROC 이력"
+  />
+
+  <meta
+    property="og:type"
+    content="website"
+  />
+
+  <meta
+    property="og:url"
+    content="https://dev32user.github.io/chpy-tracker/"
+  />
+
+  <!-- OG_IMAGE_URL_START -->
+  <meta
+    property="og:image"
+    content="https://dev32user.github.io/chpy-tracker/og/chpy-placeholder.png"
+  />
+  <meta
+    name="twitter:image"
+    content="https://dev32user.github.io/chpy-tracker/og/chpy-placeholder.png"
+  />
+  <!-- OG_IMAGE_URL_END -->
+
+  <meta
+    name="twitter:card"
+    content="summary_large_image"
+  />
+
+  <meta
+    name="twitter:title"
+    content="CHPY ROC History"
+  />
+
+  <meta
+    name="twitter:description"
+    content="YieldMax CHPY 주간 분배금 및 Estimated ROC 이력"
+  />
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -29,21 +80,25 @@
       color: #666;
       margin-bottom: 24px;
     }
-    
+
     .summary {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns:
+        repeat(
+          2,
+          minmax(0, 1fr)
+        );
       gap: 12px;
       margin-bottom: 24px;
     }
-    
+
     .card {
       border: 1px solid #ddd;
       border-radius: 8px;
       padding: 16px;
       min-width: 0;
     }
-    
+
     .card strong {
       display: block;
       font-size: 1.3rem;
@@ -55,9 +110,6 @@
       margin-bottom: 36px;
     }
 
-    /*
-     * 테이블 전용 가로 스크롤 영역
-     */
     .table-wrapper {
       width: 100%;
       max-width: 100%;
@@ -75,7 +127,8 @@
     th,
     td {
       padding: 10px 8px;
-      border-bottom: 1px solid #ddd;
+      border-bottom:
+        1px solid #ddd;
       text-align: right;
       white-space: nowrap;
     }
@@ -97,10 +150,6 @@
       font-size: .9rem;
     }
 
-    /*
-     * 모바일에서는 좌우 여백을 조금 줄여
-     * 실제 사용 가능한 화면 폭을 확보
-     */
     @media (max-width: 600px) {
       body {
         margin: 24px auto;
@@ -114,69 +163,116 @@
       .table-wrapper {
         margin-left: -12px;
         margin-right: -12px;
-        width: calc(100% + 24px);
+        width:
+          calc(100% + 24px);
       }
 
       th,
       td {
-        padding: 10px 12px;
+        padding:
+          10px 12px;
       }
     }
   </style>
 </head>
 
 <body>
-  <h1>CHPY ROC History</h1>
+  <h1>
+    CHPY ROC History
+  </h1>
 
   <p class="meta">
-    YieldMax CHPY 주간 분배금 및 Estimated ROC 이력
+    YieldMax CHPY 주간 분배금 및
+    Estimated ROC 이력
   </p>
 
   <section class="summary">
     <div class="card">
       최근 발표일
-      <strong id="latest-date">-</strong>
+
+      <strong
+        id="latest-date"
+      >
+        -
+      </strong>
     </div>
 
     <div class="card">
       수집 건수
-      <strong id="count">-</strong>
+
+      <strong
+        id="count"
+      >
+        -
+      </strong>
     </div>
-    
+
     <div class="card">
       최근 분배금
-      <strong id="latest-distribution">-</strong>
+
+      <strong
+        id="latest-distribution"
+      >
+        -
+      </strong>
     </div>
 
     <div class="card">
       최근 ROC
-      <strong id="latest-roc">-</strong>
+
+      <strong
+        id="latest-roc"
+      >
+        -
+      </strong>
     </div>
   </section>
 
   <div class="chart">
-    <canvas id="roc-chart"></canvas>
+    <canvas
+      id="roc-chart"
+    ></canvas>
   </div>
 
   <div class="table-wrapper">
     <table>
       <thead>
         <tr>
-          <th>Declared Date</th>
-          <th>Dist./Share</th>
-          <th>ROC</th>
-          <th>Ex Date</th>
-          <th>Record Date</th>
-          <th>Payable Date</th>
+          <th>
+            Declared Date
+          </th>
+
+          <th>
+            Dist./Share
+          </th>
+
+          <th>
+            ROC
+          </th>
+
+          <th>
+            Ex Date
+          </th>
+
+          <th>
+            Record Date
+          </th>
+
+          <th>
+            Payable Date
+          </th>
         </tr>
       </thead>
 
-      <tbody id="history-body"></tbody>
+      <tbody
+        id="history-body"
+      ></tbody>
     </table>
   </div>
 
   <p class="source">
     Source:
+
     <a
       id="source-link"
       target="_blank"
@@ -184,85 +280,155 @@
     >
       YieldMax CHPY
     </a>
-    · ROC는 YieldMax가 공개한 estimated ROC를 그대로 표시하며 최종 세무상 분류는 변경될 수 있습니다.
+
+    · ROC는 YieldMax가 공개한
+    estimated ROC를 그대로 표시하며
+    최종 세무상 분류는 변경될 수 있습니다.
   </p>
 
   <script type="module">
-    const response = await fetch("./data/history.json");
+    const response =
+      await fetch(
+        "./data/history.json"
+      );
 
     if (!response.ok) {
-      throw new Error("history.json을 불러오지 못했습니다.");
+      throw new Error(
+        "history.json을 불러오지 못했습니다."
+      );
     }
 
-    const data = await response.json();
-    const rows = data.distributions;
-    const latest = rows[0];
+    const data =
+      await response.json();
 
-    const money = (value) => `$${value.toFixed(4)}`;
+    const rows =
+      data.distributions;
 
-    const percent = (value) =>
-      value === null
-        ? "-"
-        : `${value.toFixed(2)}%`;
+    const latest =
+      rows[0];
 
-    document.querySelector("#latest-date").textContent =
+    const money =
+      (value) =>
+        `$${value.toFixed(4)}`;
+
+    const percent =
+      (value) =>
+        value === null
+          ? "-"
+          : `${value.toFixed(2)}%`;
+
+    document.querySelector(
+      "#latest-date"
+    ).textContent =
       latest.declaredDate;
 
-    document.querySelector("#latest-distribution").textContent =
-      money(latest.distributionPerShare);
+    document.querySelector(
+      "#latest-distribution"
+    ).textContent =
+      money(
+        latest.distributionPerShare
+      );
 
-    document.querySelector("#latest-roc").textContent =
-      percent(latest.rocPercent);
+    document.querySelector(
+      "#latest-roc"
+    ).textContent =
+      percent(
+        latest.rocPercent
+      );
 
-    document.querySelector("#count").textContent =
+    document.querySelector(
+      "#count"
+    ).textContent =
       rows.length;
 
-    document.querySelector("#source-link").href =
+    document.querySelector(
+      "#source-link"
+    ).href =
       data.source;
 
-    document.querySelector("#history-body").innerHTML =
-      rows.map((row) => `
-        <tr>
-          <td>${row.declaredDate}</td>
-          <td>${money(row.distributionPerShare)}</td>
-          <td>${percent(row.rocPercent)}</td>
-          <td>${row.exDate}</td>
-          <td>${row.recordDate}</td>
-          <td>${row.payableDate}</td>
-        </tr>
-      `).join("");
+    document.querySelector(
+      "#history-body"
+    ).innerHTML =
+      rows.map(
+        (row) => `
+          <tr>
+            <td>
+              ${row.declaredDate}
+            </td>
 
-    const chronological = [...rows].reverse();
+            <td>
+              ${money(
+                row.distributionPerShare
+              )}
+            </td>
 
-    new Chart(document.querySelector("#roc-chart"), {
-      type: "line",
+            <td>
+              ${percent(
+                row.rocPercent
+              )}
+            </td>
 
-      data: {
-        labels: chronological.map(
-          (row) => row.declaredDate
-        ),
+            <td>
+              ${row.exDate}
+            </td>
 
-        datasets: [{
-          label: "Estimated ROC (%)",
+            <td>
+              ${row.recordDate}
+            </td>
 
-          data: chronological.map(
-            (row) => row.rocPercent
-          )
-        }]
-      },
+            <td>
+              ${row.payableDate}
+            </td>
+          </tr>
+        `
+      ).join("");
 
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
+    const chronological =
+      [...rows].reverse();
 
-        scales: {
-          y: {
-            min: 0,
-            max: 100
+    new Chart(
+      document.querySelector(
+        "#roc-chart"
+      ),
+      {
+        type: "line",
+
+        data: {
+          labels:
+            chronological.map(
+              (row) =>
+                row.declaredDate
+            ),
+
+          datasets: [
+            {
+              label:
+                "Estimated ROC (%)",
+
+              data:
+                chronological.map(
+                  (row) =>
+                    row.rocPercent
+                )
+            }
+          ]
+        },
+
+        options: {
+          responsive: true,
+
+          maintainAspectRatio:
+            false,
+
+          scales: {
+            y: {
+              min: 0,
+              max: 100
+            }
           }
         }
       }
-    });
+    );
   </script>
 </body>
 </html>
