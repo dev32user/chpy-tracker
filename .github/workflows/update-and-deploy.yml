@@ -6,8 +6,7 @@ on:
   schedule:
     # Every Tuesday 22:00~Wednesday 00:00 KST.
     # GitHub Actions cron uses UTC.
-    - cron: "0 13-15 * * 2"
-
+    - cron: "0 13 * * *"
   push:
     branches:
       - master
