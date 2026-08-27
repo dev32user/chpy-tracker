@@ -1,5 +1,11 @@
-import { mkdir } from "node:fs/promises";
+import {
+  mkdir,
+  readdir,
+  unlink
+} from "node:fs/promises";
+
 import { join } from "node:path";
+
 import sharp from "sharp";
 
 export type OgImageData = {
@@ -18,7 +24,9 @@ function escapeXml(value: string): string {
     .replace(/'/g, "&apos;");
 }
 
-function formatRoc(value: number | null): string {
+function formatRoc(
+  value: number | null
+): string {
   if (value === null) {
     return "-";
   }
@@ -35,33 +43,80 @@ function createFileName(
       ? "na"
       : rocPercent.toFixed(2);
 
-  return `chpy-${declaredDate}-${roc}.png`;
+  return `chpy-${declaredDate}-${roc}.jpg`;
+}
+
+async function removeOldOgImages(): Promise<void> {
+  const files =
+    await readdir(
+      OUTPUT_DIR,
+      {
+        withFileTypes: true
+      }
+    );
+
+  const imageExtensions =
+    /\.(png|jpg|jpeg|webp)$/i;
+
+  const oldImages =
+    files.filter(
+      (file) =>
+        file.isFile() &&
+        imageExtensions.test(file.name)
+    );
+
+  for (
+    const image of oldImages
+  ) {
+    const imagePath =
+      join(
+        OUTPUT_DIR,
+        image.name
+      );
+
+    await unlink(imagePath);
+
+    console.log(
+      `Removed old OG image: ${imagePath}`
+    );
+  }
 }
 
 export async function generateOgImage(
   data: OgImageData
 ): Promise<string> {
-  await mkdir(OUTPUT_DIR, {
-    recursive: true
-  });
-
-  const fileName = createFileName(
-    data.declaredDate,
-    data.rocPercent
-  );
-
-  const outputFile = join(
+  await mkdir(
     OUTPUT_DIR,
-    fileName
+    {
+      recursive: true
+    }
   );
 
-  const date = escapeXml(
-    data.declaredDate
-  );
+  await removeOldOgImages();
 
-  const roc = escapeXml(
-    formatRoc(data.rocPercent)
-  );
+  const fileName =
+    createFileName(
+      data.declaredDate,
+      data.rocPercent
+    );
+
+  const outputFile =
+    join(
+      OUTPUT_DIR,
+      fileName
+    );
+
+  const date =
+    escapeXml(
+      data.declaredDate
+    );
+
+  const roc =
+    escapeXml(
+      formatRoc(
+        data.rocPercent
+      )
+    );
 
   const svg = `
 <svg
@@ -137,8 +192,14 @@ export async function generateOgImage(
   await sharp(
     Buffer.from(svg)
   )
-    .png()
-    .toFile(outputFile);
+    .jpeg({
+      quality: 70,
+      progressive: true,
+      mozjpeg: true
+    })
+    .toFile(
+      outputFile
+    );
 
   console.log(
     `Generated OG image: ${outputFile}`
