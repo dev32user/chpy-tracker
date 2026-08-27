@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
   schedule:
-    # Every Tuesday 22:00~Wednesday 00:00 KST.
     # GitHub Actions cron uses UTC.
+    # Every day at 22:00 KST = 13:00 UTC
     - cron: "0 13 * * *"
   push:
     branches:
