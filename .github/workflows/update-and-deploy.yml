@@ -2,12 +2,15 @@ name: Update CHPY ROC History and Deploy
 
 on:
   workflow_dispatch:
+
   schedule:
-    # Every Tuesday at 22:00 KST through Wednesday 00:00 KST.
+    # Every Tuesday 22:00~Wednesday 00:00 KST.
     # GitHub Actions cron uses UTC.
     - cron: "0 13-15 * * 2"
+
   push:
-    branches: ["master"]
+    branches:
+      - master
 
 permissions:
   contents: write
@@ -21,8 +24,6 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    outputs:
-      changed: ${{ steps.commit.outputs.changed }}
 
     steps:
       - name: Checkout
@@ -32,27 +33,26 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 22
-          #cache: npm
 
       - name: Install dependencies
         run: npm install
 
-      - name: Fetch CHPY distribution history
+      - name: Fetch CHPY distribution history and generate OG image
         run: npm run update
 
-      - name: Commit updated history
-        id: commit
+      - name: Commit updated files
         run: |
-          if git diff --quiet -- docs/data/history.json; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No history changes."
+          if git diff --quiet -- docs; then
+            echo "No docs changes."
           else
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add docs/data/history.json
-            git commit -m "data: update CHPY ROC history"
+
+            git add docs
+
+            git commit -m "data: update CHPY ROC history and OG image"
+
             git push
-            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Upload Pages artifact
@@ -62,7 +62,9 @@ jobs:
 
   deploy:
     needs: update
+
     runs-on: ubuntu-latest
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
