@@ -281,11 +281,12 @@
   </p>
 
   <script type="module">
-    const response =
-      await fetch(
-        "./data/history.json"
-      );
-
+    const response = await fetch(
+      `./data/history.json?v=${Date.now()}`,
+      {
+        cache: "no-store"
+      }
+    );
     if (!response.ok) {
       throw new Error(
         "history.json을 불러오지 못했습니다."
