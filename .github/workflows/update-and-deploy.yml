@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
 
   schedule:
-    # GitHub Actions cron uses UTC.
     # Every day at 22:00 KST = 13:00 UTC
     - cron: "0 13 * * *"
 
@@ -29,7 +28,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
+          ref: master
           fetch-depth: 0
+
+      # push 이벤트가 발생한 뒤 다른 커밋이 master에 추가됐을 수도 있으므로
+      # 항상 현재 원격 master 기준으로 작업한다.
+      - name: Sync latest master
+        run: |
+          git fetch origin master
+          git reset --hard origin/master
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -39,29 +46,48 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # 사람이 master에 push한 경우에는 크롤링하지 않는다.
+      # schedule / workflow_dispatch에서만 데이터를 갱신한다.
       - name: Fetch CHPY distribution history and generate OG image
+        if: github.event_name != 'push'
         run: npm run update
 
       - name: Commit updated files
+        if: github.event_name != 'push'
         run: |
-          if git diff --quiet -- docs; then
+          if [ -z "$(git status --porcelain -- docs)" ]; then
             echo "No docs changes."
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-            git add docs
-            git commit -m "data: update CHPY ROC history and OG image"
-
-            echo "Fetching latest master..."
-            git fetch origin master
-
-            echo "Rebasing onto latest master..."
-            git rebase origin/master
-
-            echo "Pushing updated files..."
-            git push origin master
+            exit 0
           fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add docs
+          git commit -m "data: update CHPY ROC history and OG image"
+
+          if git push origin master; then
+            echo "Push succeeded."
+            exit 0
+          fi
+
+          echo "Remote master changed while updating."
+          echo "Regenerating from the latest master..."
+
+          git fetch origin master
+          git reset --hard origin/master
+
+          npm run update
+
+          if [ -z "$(git status --porcelain -- docs)" ]; then
+            echo "No docs changes after regeneration."
+            exit 0
+          fi
+
+          git add docs
+          git commit -m "data: update CHPY ROC history and OG image"
+
+          git push origin master
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
@@ -70,7 +96,6 @@ jobs:
 
   deploy:
     needs: update
-
     runs-on: ubuntu-latest
 
     environment:
