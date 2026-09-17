@@ -4,26 +4,11 @@ on:
   workflow_dispatch:
 
   schedule:
-    # 매일 22:17 KST - 일반 fallback
-    - cron: "17 22 * * *"
-      timezone: "Asia/Seoul"
+    # CHPY/YieldMax의 미국 영업일 기준.
+    # 월~금, 매시간 17분 / 47분에 실행.
+    - cron: "17,47 * * * 1-5"
+      timezone: "America/New_York"
 
-    # 화요일 CHPY 발표 집중 확인
-    # 여름 발표 예상 19:55 KST
-    # 겨울 발표 예상 20:55 KST
-
-    # 20:17, 20:47, 21:17, 21:47
-    - cron: "17,47 20-21 * * 2"
-      timezone: "Asia/Seoul"
-
-    # 22:47
-    # 22:17은 위의 매일 fallback과 겹치므로 제외
-    - cron: "47 22 * * 2"
-      timezone: "Asia/Seoul"
-
-    # 23:17, 23:47
-    - cron: "17,47 23 * * 2"
-      timezone: "Asia/Seoul"
   push:
     branches:
       - master
@@ -41,6 +26,9 @@ jobs:
   update:
     runs-on: ubuntu-latest
 
+    outputs:
+      should_deploy: ${{ steps.deploy_decision.outputs.should_deploy }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -48,32 +36,30 @@ jobs:
           ref: master
           fetch-depth: 0
 
-      # push 이벤트가 발생한 뒤 다른 커밋이 master에 추가됐을 수도 있으므로
-      # 항상 현재 원격 master 기준으로 작업한다.
-      - name: Sync latest master
-        run: |
-          git fetch origin master
-          git reset --hard origin/master
-
+      # push 이벤트에서는 사이트 배포만 하면 되므로
+      # 데이터 수집용 Node 환경은 schedule / 수동 실행에서만 준비한다.
       - name: Setup Node.js
+        if: github.event_name != 'push'
         uses: actions/setup-node@v6
         with:
           node-version: 22
 
       - name: Install dependencies
+        if: github.event_name != 'push'
         run: npm install
 
-      # 사람이 master에 push한 경우에는 크롤링하지 않는다.
-      # schedule / workflow_dispatch에서만 데이터를 갱신한다.
       - name: Fetch CHPY distribution history and generate OG image
         if: github.event_name != 'push'
         run: npm run update
 
-      - name: Commit updated files
+      - name: Commit updated data
+        id: commit_data
         if: github.event_name != 'push'
+        shell: bash
         run: |
-          if [ -z "$(git status --porcelain -- docs)" ]; then
-            echo "No docs changes."
+          if git diff --quiet -- docs; then
+            echo "No CHPY distribution changes. Nothing to commit."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -84,35 +70,63 @@ jobs:
           git commit -m "data: update CHPY ROC history and OG image"
 
           if git push origin master; then
-            echo "Push succeeded."
+            echo "changed=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          echo "Remote master changed while updating."
-          echo "Regenerating from the latest master..."
+          # 실행 도중 사람이 master를 수정한 경우
+          # 자동 생성 파일을 rebase/merge하지 않고 최신 master 기준으로 다시 생성한다.
+          echo "Remote master changed while this run was working."
+          echo "Refreshing master and regenerating data once..."
 
           git fetch origin master
           git reset --hard origin/master
 
+          npm install
           npm run update
 
-          if [ -z "$(git status --porcelain -- docs)" ]; then
-            echo "No docs changes after regeneration."
+          if git diff --quiet -- docs; then
+            echo "Latest master already contains the current CHPY data."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           git add docs
           git commit -m "data: update CHPY ROC history and OG image"
-
           git push origin master
 
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Decide whether to deploy
+        id: deploy_decision
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DATA_CHANGED: ${{ steps.commit_data.outputs.changed }}
+        run: |
+          if [ "$EVENT_NAME" = "push" ]; then
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+            echo "Deploying because master was pushed."
+
+          elif [ "$DATA_CHANGED" = "true" ]; then
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+            echo "Deploying because CHPY data changed."
+
+          else
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping deployment because CHPY data is unchanged."
+          fi
+
       - name: Upload Pages artifact
+        if: steps.deploy_decision.outputs.should_deploy == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
           path: ./docs
 
   deploy:
     needs: update
+    if: needs.update.outputs.should_deploy == 'true'
+
     runs-on: ubuntu-latest
 
     environment:
