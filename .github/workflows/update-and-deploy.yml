@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      should_deploy: ${{ steps.deploy_decision.outputs.should_deploy }}
+      changed: ${{ steps.commit_data.outputs.changed }}
 
     steps:
       - name: Checkout
@@ -36,29 +36,23 @@ jobs:
           ref: master
           fetch-depth: 0
 
-      # push 이벤트에서는 사이트 배포만 하면 되므로
-      # 데이터 수집용 Node 환경은 schedule / 수동 실행에서만 준비한다.
       - name: Setup Node.js
-        if: github.event_name != 'push'
         uses: actions/setup-node@v6
         with:
           node-version: 22
 
       - name: Install dependencies
-        if: github.event_name != 'push'
         run: npm install
 
       - name: Fetch CHPY distribution history and generate OG image
-        if: github.event_name != 'push'
         run: npm run update
 
       - name: Commit updated data
         id: commit_data
-        if: github.event_name != 'push'
         shell: bash
         run: |
           if git diff --quiet -- docs; then
-            echo "No CHPY distribution changes. Nothing to commit."
+            echo "No CHPY distribution changes."
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -74,10 +68,7 @@ jobs:
             exit 0
           fi
 
-          # 실행 도중 사람이 master를 수정한 경우
-          # 자동 생성 파일을 rebase/merge하지 않고 최신 master 기준으로 다시 생성한다.
-          echo "Remote master changed while this run was working."
-          echo "Refreshing master and regenerating data once..."
+          echo "Remote master changed. Regenerating from latest master..."
 
           git fetch origin master
           git reset --hard origin/master
@@ -97,35 +88,15 @@ jobs:
 
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
-      - name: Decide whether to deploy
-        id: deploy_decision
-        shell: bash
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          DATA_CHANGED: ${{ steps.commit_data.outputs.changed }}
-        run: |
-          if [ "$EVENT_NAME" = "push" ]; then
-            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
-            echo "Deploying because master was pushed."
-
-          elif [ "$DATA_CHANGED" = "true" ]; then
-            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
-            echo "Deploying because CHPY data changed."
-
-          else
-            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
-            echo "Skipping deployment because CHPY data is unchanged."
-          fi
-
       - name: Upload Pages artifact
-        if: steps.deploy_decision.outputs.should_deploy == 'true'
+        if: steps.commit_data.outputs.changed == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
           path: ./docs
 
   deploy:
     needs: update
-    if: needs.update.outputs.should_deploy == 'true'
+    if: needs.update.outputs.changed == 'true'
 
     runs-on: ubuntu-latest
 
