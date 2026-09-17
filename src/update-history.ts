@@ -71,6 +71,7 @@ function parsePercent(
   if (
     normalized === "" ||
     normalized === "-" ||
+    normalized === "—" ||
     /^n\/a$/i.test(normalized) ||
     /^na$/i.test(normalized) ||
     /^pending$/i.test(normalized)
@@ -119,11 +120,6 @@ function extractTables(
       )
       .get();
 
-    console.log(
-      "TABLE HEADERS:",
-      headers
-    );
-
     const hasDistributionHeader =
       headers.some(
         (header) =>
@@ -139,14 +135,15 @@ function extractTables(
       );
 
     if (
-      !hasDistributionHeader &&
+      !hasDistributionHeader ||
       !hasRocHeader
     ) {
       return;
     }
 
     console.log(
-      "MATCHED DISTRIBUTION TABLE"
+      "Matched CHPY distribution table:",
+      headers
     );
 
     $(table)
@@ -158,11 +155,6 @@ function extractTables(
             clean($(cell).text())
           )
           .get();
-
-        console.log(
-          "ROW:",
-          cells
-        );
 
         if (cells.length < 5) {
           return;
@@ -192,7 +184,9 @@ function extractTables(
                   value
                 ) ||
                 value === "-" ||
-                /^n\/a$/i.test(value)
+                value === "—" ||
+                /^n\/a$/i.test(value) ||
+                /^pending$/i.test(value)
             );
 
           if (
@@ -304,41 +298,6 @@ async function fetchHistory(): Promise<
     html.length
   );
 
-  const keywords = [
-    "CHPY",
-    "Distribution",
-    "distribution",
-    "ROC",
-    "Return of Capital",
-    "table",
-    "wp-json"
-  ];
-
-  console.log(
-    "KEYWORD CHECK:"
-  );
-
-  for (
-    const keyword of keywords
-  ) {
-    console.log(
-      `${keyword}:`,
-      html.includes(keyword)
-    );
-  }
-
-  console.log(
-    "HTML PREVIEW START"
-  );
-
-  console.log(
-    html.substring(0, 5000)
-  );
-
-  console.log(
-    "HTML PREVIEW END"
-  );
-
   const $ =
     cheerio.load(html);
 
@@ -356,9 +315,7 @@ async function fetchHistory(): Promise<
     throw new Error(
       [
         "No CHPY distribution rows were found.",
-        "Check the GitHub Actions log above.",
-        "The log contains HTTP status, final URL, HTML length,",
-        "keyword checks, table count, and table headers."
+        "The source page may be temporarily blocked, challenged, or changed."
       ].join(" ")
     );
   }
@@ -384,6 +341,58 @@ async function fetchHistory(): Promise<
       b.declaredDate.localeCompare(
         a.declaredDate
       )
+  );
+}
+
+async function readExistingHistory(): Promise<
+  History | null
+> {
+  try {
+    const raw = await readFile(
+      OUTPUT_FILE,
+      "utf-8"
+    );
+
+    return JSON.parse(raw) as History;
+  } catch (error) {
+    console.log(
+      `Could not read existing ${OUTPUT_FILE}. A new file will be written.`,
+      error
+    );
+
+    return null;
+  }
+}
+
+function areDistributionsEqual(
+  previous: Distribution[],
+  current: Distribution[]
+): boolean {
+  if (
+    previous.length !== current.length
+  ) {
+    return false;
+  }
+
+  return previous.every(
+    (oldItem, index) => {
+      const newItem = current[index];
+
+      return (
+        oldItem.distributionPerShare ===
+          newItem.distributionPerShare &&
+        oldItem.declaredDate ===
+          newItem.declaredDate &&
+        oldItem.exDate ===
+          newItem.exDate &&
+        oldItem.recordDate ===
+          newItem.recordDate &&
+        oldItem.payableDate ===
+          newItem.payableDate &&
+        oldItem.rocPercent ===
+          newItem.rocPercent
+      );
+    }
   );
 }
 
@@ -428,27 +437,50 @@ async function updateOgMetadata(
     );
 
   if (
-    updatedHtml !== indexHtml
+    updatedHtml === indexHtml
   ) {
-    await writeFile(
-      INDEX_FILE,
-      updatedHtml,
-      "utf-8"
-    );
-
-    console.log(
-      `Updated OG image URL: ${imageUrl}`
-    );
-  } else {
     console.log(
       `OG image URL is already up to date: ${imageUrl}`
     );
+
+    return;
   }
+
+  await writeFile(
+    INDEX_FILE,
+    updatedHtml,
+    "utf-8"
+  );
+
+  console.log(
+    `Updated OG image URL: ${imageUrl}`
+  );
 }
 
 async function main(): Promise<void> {
   const distributions =
     await fetchHistory();
+
+  const existingHistory =
+    await readExistingHistory();
+
+  if (
+    existingHistory &&
+    areDistributionsEqual(
+      existingHistory.distributions,
+      distributions
+    )
+  ) {
+    console.log(
+      [
+        "No distribution changes detected.",
+        `${OUTPUT_FILE}, OG image, and ${INDEX_FILE}`,
+        "will remain untouched."
+      ].join(" ")
+    );
+
+    return;
+  }
 
   const history: History = {
     ticker: "CHPY",
@@ -496,6 +528,7 @@ async function main(): Promise<void> {
     await generateOgImage({
       declaredDate:
         latest.declaredDate,
+
       rocPercent:
         latest.rocPercent
     });
