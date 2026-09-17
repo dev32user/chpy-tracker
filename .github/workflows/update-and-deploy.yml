@@ -4,9 +4,26 @@ on:
   workflow_dispatch:
 
   schedule:
-    # Every day at 22:00 KST = 13:00 UTC
-    - cron: "0 13 * * *"
+    # 매일 22:17 KST - 일반 fallback
+    - cron: "17 22 * * *"
+      timezone: "Asia/Seoul"
 
+    # 화요일 CHPY 발표 집중 확인
+    # 여름 발표 예상 19:55 KST
+    # 겨울 발표 예상 20:55 KST
+
+    # 20:17, 20:47, 21:17, 21:47
+    - cron: "17,47 20-21 * * 2"
+      timezone: "Asia/Seoul"
+
+    # 22:47
+    # 22:17은 위의 매일 fallback과 겹치므로 제외
+    - cron: "47 22 * * 2"
+      timezone: "Asia/Seoul"
+
+    # 23:17, 23:47
+    - cron: "17,47 23 * * 2"
+      timezone: "Asia/Seoul"
   push:
     branches:
       - master
