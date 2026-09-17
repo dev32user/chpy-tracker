@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      changed: ${{ steps.commit_data.outputs.changed }}
+      should_deploy: ${{ steps.deploy_check.outputs.should_deploy }}
 
     steps:
       - name: Checkout
@@ -88,15 +88,32 @@ jobs:
 
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
+      - name: Decide whether to deploy
+        id: deploy_check
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "Repository was pushed. Deploying current docs."
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+
+          elif [ "${{ steps.commit_data.outputs.changed }}" = "true" ]; then
+            echo "CHPY data changed. Deploying updated docs."
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+
+          else
+            echo "Nothing changed. Skipping deployment."
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Upload Pages artifact
-        if: steps.commit_data.outputs.changed == 'true'
+        if: steps.deploy_check.outputs.should_deploy == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
           path: ./docs
 
   deploy:
     needs: update
-    if: needs.update.outputs.changed == 'true'
+    if: needs.update.outputs.should_deploy == 'true'
 
     runs-on: ubuntu-latest
 
