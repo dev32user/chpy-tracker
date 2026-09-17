@@ -63,6 +63,28 @@
       box-sizing: border-box;
     }
 
+    :root {
+      color-scheme: light dark;
+
+      --background: #ffffff;
+      --surface: #ffffff;
+      --text: #18181b;
+      --muted: #71717a;
+      --border: #e4e4e7;
+      --hover: #fafafa;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #0f0f10;
+        --surface: #111112;
+        --text: #f4f4f5;
+        --muted: #a1a1aa;
+        --border: #3f3f46;
+        --hover: #18181b;
+      }
+    }
+
     html,
     body {
       max-width: 100%;
@@ -81,8 +103,8 @@
       margin: 40px auto;
       padding: 0 16px;
 
-      color: #18181b;
-      background: #ffffff;
+      color: var(--text);
+      background: var(--background);
     }
 
     h1 {
@@ -95,7 +117,7 @@
     }
 
     .meta {
-      color: #666;
+      color: var(--muted);
       margin-top: 0;
       margin-bottom: 24px;
     }
@@ -111,15 +133,15 @@
     }
 
     .card {
-      border: 1px solid #e4e4e7;
+      border: 1px solid var(--border);
       border-radius: 10px;
       padding: 16px;
       min-width: 0;
-      background: #ffffff;
+      background: var(--surface);
     }
 
     .card-label {
-      color: #71717a;
+      color: var(--muted);
       font-size: .9rem;
     }
 
@@ -137,18 +159,20 @@
 
       margin-top: 6px;
 
-      color: #71717a;
+      color: var(--muted);
       font-size: .82rem;
       min-height: 1.2em;
     }
 
     .chart-card {
-      border: 1px solid #e4e4e7;
+      border: 1px solid var(--border);
       border-radius: 12px;
 
       padding: 18px;
 
       margin-bottom: 32px;
+
+      background: var(--surface);
     }
 
     .chart-header {
@@ -165,8 +189,9 @@
     .chart-description {
       margin: 5px 0 0;
 
-      color: #71717a;
+      color: var(--muted);
       font-size: .86rem;
+      line-height: 1.5;
     }
 
     .range-buttons {
@@ -179,10 +204,11 @@
     .range-button {
       appearance: none;
 
-      border: 1px solid #d4d4d8;
+      border: 1px solid var(--border);
       border-radius: 7px;
 
-      background: #ffffff;
+      background: var(--surface);
+      color: var(--text);
 
       padding: 6px 10px;
 
@@ -193,19 +219,27 @@
     }
 
     .range-button:hover {
-      background: #f4f4f5;
+      background: var(--hover);
     }
 
     .range-button.active {
-      background: #18181b;
-      border-color: #18181b;
-      color: #ffffff;
+      background: var(--text);
+      border-color: var(--text);
+      color: var(--background);
     }
 
     .chart {
       position: relative;
       height: 430px;
       width: 100%;
+    }
+
+    .chart-note {
+      margin: 12px 0 0;
+
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.5;
     }
 
     .table-title {
@@ -234,7 +268,7 @@
     td {
       padding: 10px 8px;
 
-      border-bottom: 1px solid #e4e4e7;
+      border-bottom: 1px solid var(--border);
 
       text-align: right;
       white-space: nowrap;
@@ -249,20 +283,20 @@
       position: sticky;
       top: 0;
 
-      background: #ffffff;
+      background: var(--background);
 
-      color: #52525b;
+      color: var(--muted);
       font-size: .88rem;
     }
 
     tbody tr:hover {
-      background: #fafafa;
+      background: var(--hover);
     }
 
     .source {
       margin-top: 24px;
 
-      color: #666;
+      color: var(--muted);
       font-size: .9rem;
       line-height: 1.55;
     }
@@ -398,12 +432,13 @@
     <div class="chart-header">
       <div>
         <h2>
-          분배금 · Estimated ROC 추이
+          분배금 구성 · 4주 추이
         </h2>
 
         <p class="chart-description">
-          막대는 주당 실제 분배금,
-          선은 Estimated ROC입니다.
+          막대 전체 높이는 실제 주당 분배금입니다.
+          Estimated ROC와 Non-ROC 부분을 나누고,
+          선은 4주 평균 분배금입니다.
         </p>
       </div>
 
@@ -412,7 +447,7 @@
         aria-label="그래프 표시 기간"
       >
         <button
-          class="range-button"
+          class="range-button active"
           type="button"
           data-range="13"
         >
@@ -420,7 +455,7 @@
         </button>
 
         <button
-          class="range-button active"
+          class="range-button"
           type="button"
           data-range="26"
         >
@@ -440,6 +475,12 @@
     <div class="chart">
       <canvas id="history-chart"></canvas>
     </div>
+
+    <p class="chart-note">
+      Non-ROC는 세무상 소득을 의미하지 않습니다.
+      단순히 현재 공개된 Estimated ROC에 포함되지 않은
+      분배금 부분을 나타냅니다.
+    </p>
   </section>
 
   <h2 class="table-title">
@@ -647,9 +688,69 @@
     const chronological =
       [...rows].reverse();
 
+    const chartRows =
+      chronological.map(
+        (row, index) => {
+          const distribution =
+            row.distributionPerShare;
+
+          const hasRoc =
+            row.rocPercent !== null;
+
+          const rocRatio =
+            hasRoc
+              ? row.rocPercent / 100
+              : null;
+
+          const rocAmount =
+            rocRatio === null
+              ? 0
+              : distribution * rocRatio;
+
+          const nonRocAmount =
+            rocRatio === null
+              ? 0
+              : distribution - rocAmount;
+
+          const unknownAmount =
+            rocRatio === null
+              ? distribution
+              : 0;
+
+          const averageStart =
+            index - 3;
+
+          let fourWeekAverage = null;
+
+          if (averageStart >= 0) {
+            const fourWeeks =
+              chronological.slice(
+                averageStart,
+                index + 1
+              );
+
+            fourWeekAverage =
+              fourWeeks.reduce(
+                (sum, item) =>
+                  sum +
+                  item.distributionPerShare,
+                0
+              ) / fourWeeks.length;
+          }
+
+          return {
+            ...row,
+            rocAmount,
+            nonRocAmount,
+            unknownAmount,
+            fourWeekAverage
+          };
+        }
+      );
+
     let chart = null;
 
-    let currentRange = 26;
+    let currentRange = 13;
 
     const shortDate = (value) => {
       const [
@@ -665,21 +766,34 @@
       if (
         currentRange === "all"
       ) {
-        return chronological;
+        return chartRows;
       }
 
-      return chronological.slice(
+      return chartRows.slice(
         -currentRange
       );
     };
 
+    const cssValue = (name) =>
+      getComputedStyle(
+        document.documentElement
+      )
+        .getPropertyValue(name)
+        .trim();
+
     const renderChart = () => {
-      const chartRows =
+      const visible =
         visibleRows();
 
       if (chart) {
         chart.destroy();
       }
+
+      const textColor =
+        cssValue("--muted");
+
+      const gridColor =
+        cssValue("--border");
 
       chart = new Chart(
         document.querySelector(
@@ -690,7 +804,7 @@
 
           data: {
             labels:
-              chartRows.map(
+              visible.map(
                 (row) =>
                   shortDate(
                     row.declaredDate
@@ -702,26 +816,76 @@
                 type: "bar",
 
                 label:
-                  "Distribution / Share",
+                  "Estimated ROC portion",
 
                 data:
-                  chartRows.map(
+                  visible.map(
                     (row) =>
-                      row.distributionPerShare
+                      row.rocAmount
                   ),
 
-                yAxisID:
+                stack:
                   "distribution",
 
                 backgroundColor:
-                  "rgba(37, 99, 235, 0.35)",
+                  "rgba(234, 88, 12, 0.78)",
+
+                borderColor:
+                  "rgb(234, 88, 12)",
+
+                borderWidth: 1,
+
+                order: 2
+              },
+
+              {
+                type: "bar",
+
+                label:
+                  "Non-ROC portion",
+
+                data:
+                  visible.map(
+                    (row) =>
+                      row.nonRocAmount
+                  ),
+
+                stack:
+                  "distribution",
+
+                backgroundColor:
+                  "rgba(37, 99, 235, 0.72)",
 
                 borderColor:
                   "rgb(37, 99, 235)",
 
                 borderWidth: 1,
 
-                borderRadius: 3,
+                order: 2
+              },
+
+              {
+                type: "bar",
+
+                label:
+                  "ROC unknown",
+
+                data:
+                  visible.map(
+                    (row) =>
+                      row.unknownAmount
+                  ),
+
+                stack:
+                  "distribution",
+
+                backgroundColor:
+                  "rgba(113, 113, 122, 0.55)",
+
+                borderColor:
+                  "rgb(113, 113, 122)",
+
+                borderWidth: 1,
 
                 order: 2
               },
@@ -730,30 +894,30 @@
                 type: "line",
 
                 label:
-                  "Estimated ROC",
+                  "4-week avg. distribution",
 
                 data:
-                  chartRows.map(
+                  visible.map(
                     (row) =>
-                      row.rocPercent
+                      row.fourWeekAverage
                   ),
 
-                yAxisID:
-                  "roc",
+                stack:
+                  "average",
 
                 borderColor:
-                  "rgb(234, 88, 12)",
+                  "rgb(22, 163, 74)",
 
                 backgroundColor:
-                  "rgb(234, 88, 12)",
+                  "rgb(22, 163, 74)",
 
                 borderWidth: 2.5,
 
-                pointRadius: 3,
+                pointRadius: 2,
 
                 pointHoverRadius: 5,
 
-                tension: 0.2,
+                tension: 0.25,
 
                 spanGaps: false,
 
@@ -777,8 +941,26 @@
                 position: "top",
 
                 labels: {
+                  color: textColor,
+
                   usePointStyle: true,
-                  boxWidth: 10
+
+                  boxWidth: 10,
+
+                  filter(item) {
+                    if (
+                      item.text !==
+                      "ROC unknown"
+                    ) {
+                      return true;
+                    }
+
+                    return visible.some(
+                      (row) =>
+                        row.rocPercent ===
+                        null
+                    );
+                  }
                 }
               },
 
@@ -791,42 +973,117 @@
                       return "";
                     }
 
-                    return chartRows[
+                    return visible[
                       items[0].dataIndex
                     ].declaredDate;
                   },
 
                   label(context) {
+                    const row =
+                      visible[
+                        context.dataIndex
+                      ];
+
                     if (
-                      context.dataset.yAxisID ===
-                      "distribution"
+                      context.dataset.label ===
+                      "Estimated ROC portion"
                     ) {
+                      if (
+                        row.rocPercent ===
+                        null
+                      ) {
+                        return null;
+                      }
+
                       return (
-                        ` Distribution: ` +
+                        ` ROC portion: ` +
                         money(
-                          Number(
-                            context.raw
-                          )
+                          row.rocAmount
                         )
                       );
                     }
 
                     if (
-                      context.raw === null
+                      context.dataset.label ===
+                      "Non-ROC portion"
                     ) {
+                      if (
+                        row.rocPercent ===
+                        null
+                      ) {
+                        return null;
+                      }
+
                       return (
-                        " Estimated ROC: -"
+                        ` Non-ROC portion: ` +
+                        money(
+                          row.nonRocAmount
+                        )
                       );
                     }
 
-                    return (
-                      ` Estimated ROC: ` +
-                      percent(
-                        Number(
-                          context.raw
+                    if (
+                      context.dataset.label ===
+                      "ROC unknown"
+                    ) {
+                      if (
+                        row.rocPercent !==
+                        null
+                      ) {
+                        return null;
+                      }
+
+                      return (
+                        ` ROC classification unknown: ` +
+                        money(
+                          row.distributionPerShare
                         )
-                      )
-                    );
+                      );
+                    }
+
+                    if (
+                      context.dataset.label ===
+                      "4-week avg. distribution"
+                    ) {
+                      if (
+                        row.fourWeekAverage ===
+                        null
+                      ) {
+                        return null;
+                      }
+
+                      return (
+                        ` 4-week average: ` +
+                        money(
+                          row.fourWeekAverage
+                        )
+                      );
+                    }
+
+                    return "";
+                  },
+
+                  afterBody(items) {
+                    if (
+                      items.length === 0
+                    ) {
+                      return [];
+                    }
+
+                    const row =
+                      visible[
+                        items[0].dataIndex
+                      ];
+
+                    return [
+                      "",
+                      `Total distribution: ${money(
+                        row.distributionPerShare
+                      )}`,
+                      `Estimated ROC: ${percent(
+                        row.rocPercent
+                      )}`
+                    ];
                   }
                 }
               }
@@ -834,64 +1091,49 @@
 
             scales: {
               x: {
+                stacked: true,
+
                 grid: {
                   display: false
                 },
 
                 ticks: {
+                  color: textColor,
+
                   autoSkip: true,
-                  maxTicksLimit: 9,
+                  maxTicksLimit: 8,
                   maxRotation: 0,
                   minRotation: 0
                 }
               },
 
-              distribution: {
-                type: "linear",
-
-                position: "left",
+              y: {
+                stacked: true,
 
                 beginAtZero: true,
 
                 title: {
                   display: true,
-                  text: "Distribution / Share ($)"
+
+                  text:
+                    "Distribution / Share ($)",
+
+                  color: textColor
+                },
+
+                grid: {
+                  color: gridColor
                 },
 
                 ticks: {
+                  color: textColor,
+
                   callback(value) {
                     return (
                       "$" +
                       Number(value)
                         .toFixed(2)
                     );
-                  }
-                }
-              },
-
-              roc: {
-                type: "linear",
-
-                position: "right",
-
-                min: 0,
-                max: 100,
-
-                title: {
-                  display: true,
-                  text: "Estimated ROC (%)"
-                },
-
-                grid: {
-                  drawOnChartArea:
-                    false
-                },
-
-                ticks: {
-                  stepSize: 25,
-
-                  callback(value) {
-                    return `${value}%`;
                   }
                 }
               }
@@ -936,6 +1178,17 @@
           }
         );
       });
+
+    window
+      .matchMedia(
+        "(prefers-color-scheme: dark)"
+      )
+      .addEventListener(
+        "change",
+        () => {
+          renderChart();
+        }
+      );
 
     renderChart();
   </script>
