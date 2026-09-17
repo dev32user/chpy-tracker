@@ -31,9 +31,15 @@
   />
 
   <!-- OG_IMAGE_URL_START -->
-<meta property="og:image" content="https://dev32user.github.io/chpy-tracker/og/chpy-2026-09-15-100.00.jpg" />
-<meta name="twitter:image" content="https://dev32user.github.io/chpy-tracker/og/chpy-2026-09-15-100.00.jpg" />
-<!-- OG_IMAGE_URL_END -->
+  <meta
+    property="og:image"
+    content="https://dev32user.github.io/chpy-tracker/og/chpy-2026-09-15-100.00.jpg"
+  />
+  <meta
+    name="twitter:image"
+    content="https://dev32user.github.io/chpy-tracker/og/chpy-2026-09-15-100.00.jpg"
+  />
+  <!-- OG_IMAGE_URL_END -->
 
   <meta
     name="twitter:card"
@@ -53,6 +59,10 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     html,
     body {
       max-width: 100%;
@@ -60,69 +70,172 @@
     }
 
     body {
-      font-family: system-ui, sans-serif;
+      font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
       max-width: 1100px;
       margin: 40px auto;
       padding: 0 16px;
+
+      color: #18181b;
+      background: #ffffff;
     }
 
     h1 {
-      margin-bottom: 4px;
+      margin: 0 0 4px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.15rem;
     }
 
     .meta {
       color: #666;
+      margin-top: 0;
       margin-bottom: 24px;
     }
 
     .summary {
       display: grid;
+
       grid-template-columns:
-        repeat(
-          2,
-          minmax(0, 1fr)
-        );
+        repeat(2, minmax(0, 1fr));
+
       gap: 12px;
       margin-bottom: 24px;
     }
 
     .card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
+      border: 1px solid #e4e4e7;
+      border-radius: 10px;
       padding: 16px;
       min-width: 0;
+      background: #ffffff;
+    }
+
+    .card-label {
+      color: #71717a;
+      font-size: .9rem;
     }
 
     .card strong {
       display: block;
-      font-size: 1.3rem;
+
+      font-size: 1.35rem;
+      line-height: 1.25;
+
       margin-top: 6px;
     }
 
+    .change {
+      display: block;
+
+      margin-top: 6px;
+
+      color: #71717a;
+      font-size: .82rem;
+      min-height: 1.2em;
+    }
+
+    .chart-card {
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+
+      padding: 18px;
+
+      margin-bottom: 32px;
+    }
+
+    .chart-header {
+      display: flex;
+
+      justify-content: space-between;
+      align-items: flex-start;
+
+      gap: 16px;
+
+      margin-bottom: 12px;
+    }
+
+    .chart-description {
+      margin: 5px 0 0;
+
+      color: #71717a;
+      font-size: .86rem;
+    }
+
+    .range-buttons {
+      display: flex;
+      gap: 6px;
+
+      flex-shrink: 0;
+    }
+
+    .range-button {
+      appearance: none;
+
+      border: 1px solid #d4d4d8;
+      border-radius: 7px;
+
+      background: #ffffff;
+
+      padding: 6px 10px;
+
+      font: inherit;
+      font-size: .82rem;
+
+      cursor: pointer;
+    }
+
+    .range-button:hover {
+      background: #f4f4f5;
+    }
+
+    .range-button.active {
+      background: #18181b;
+      border-color: #18181b;
+      color: #ffffff;
+    }
+
     .chart {
-      height: 420px;
-      margin-bottom: 36px;
+      position: relative;
+      height: 430px;
+      width: 100%;
+    }
+
+    .table-title {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
     }
 
     .table-wrapper {
       width: 100%;
       max-width: 100%;
+
       overflow-x: auto;
       overflow-y: hidden;
+
       -webkit-overflow-scrolling: touch;
     }
 
     table {
       width: max-content;
       min-width: 100%;
+
       border-collapse: collapse;
     }
 
     th,
     td {
       padding: 10px 8px;
-      border-bottom:
-        1px solid #ddd;
+
+      border-bottom: 1px solid #e4e4e7;
+
       text-align: right;
       white-space: nowrap;
     }
@@ -135,13 +248,27 @@
     th {
       position: sticky;
       top: 0;
-      background: white;
+
+      background: #ffffff;
+
+      color: #52525b;
+      font-size: .88rem;
+    }
+
+    tbody tr:hover {
+      background: #fafafa;
     }
 
     .source {
       margin-top: 24px;
+
       color: #666;
       font-size: .9rem;
+      line-height: 1.55;
+    }
+
+    .source a {
+      color: inherit;
     }
 
     @media (max-width: 600px) {
@@ -150,117 +277,189 @@
         padding: 0 12px;
       }
 
+      .summary {
+        gap: 8px;
+      }
+
+      .card {
+        padding: 13px;
+      }
+
+      .card strong {
+        font-size: 1.15rem;
+      }
+
+      .chart-card {
+        margin-left: -4px;
+        margin-right: -4px;
+
+        padding: 14px 8px;
+      }
+
+      .chart-header {
+        display: block;
+      }
+
+      .range-buttons {
+        margin-top: 12px;
+      }
+
       .chart {
-        height: 360px;
+        height: 390px;
       }
 
       .table-wrapper {
         margin-left: -12px;
         margin-right: -12px;
-        width:
-          calc(100% + 24px);
+
+        width: calc(100% + 24px);
       }
 
       th,
       td {
-        padding:
-          10px 12px;
+        padding: 10px 12px;
       }
     }
   </style>
 </head>
 
 <body>
-  <h1>
-    CHPY ROC History
-  </h1>
+  <h1>CHPY ROC History</h1>
 
   <p class="meta">
-    YieldMax CHPY 주간 분배금 및
-    Estimated ROC 이력
+    YieldMax CHPY 주간 분배금 및 Estimated ROC 이력
   </p>
 
   <section class="summary">
     <div class="card">
-      최근 발표일
+      <span class="card-label">
+        최근 발표일
+      </span>
 
-      <strong
-        id="latest-date"
-      >
+      <strong id="latest-date">
         -
       </strong>
+
+      <span class="change">
+        Declared date
+      </span>
     </div>
 
     <div class="card">
-      수집 건수
+      <span class="card-label">
+        수집 건수
+      </span>
 
-      <strong
-        id="count"
-      >
+      <strong id="count">
         -
       </strong>
+
+      <span class="change">
+        distributions
+      </span>
     </div>
 
     <div class="card">
-      최근 분배금
+      <span class="card-label">
+        최근 분배금
+      </span>
 
-      <strong
-        id="latest-distribution"
-      >
+      <strong id="latest-distribution">
         -
       </strong>
+
+      <span
+        class="change"
+        id="distribution-change"
+      >
+        -
+      </span>
     </div>
 
     <div class="card">
-      최근 ROC
+      <span class="card-label">
+        최근 ROC
+      </span>
 
-      <strong
-        id="latest-roc"
-      >
+      <strong id="latest-roc">
         -
       </strong>
+
+      <span
+        class="change"
+        id="roc-change"
+      >
+        -
+      </span>
     </div>
   </section>
 
-  <div class="chart">
-    <canvas
-      id="roc-chart"
-    ></canvas>
-  </div>
+  <section class="chart-card">
+    <div class="chart-header">
+      <div>
+        <h2>
+          분배금 · Estimated ROC 추이
+        </h2>
+
+        <p class="chart-description">
+          막대는 주당 실제 분배금,
+          선은 Estimated ROC입니다.
+        </p>
+      </div>
+
+      <div
+        class="range-buttons"
+        aria-label="그래프 표시 기간"
+      >
+        <button
+          class="range-button"
+          type="button"
+          data-range="13"
+        >
+          13주
+        </button>
+
+        <button
+          class="range-button active"
+          type="button"
+          data-range="26"
+        >
+          26주
+        </button>
+
+        <button
+          class="range-button"
+          type="button"
+          data-range="all"
+        >
+          전체
+        </button>
+      </div>
+    </div>
+
+    <div class="chart">
+      <canvas id="history-chart"></canvas>
+    </div>
+  </section>
+
+  <h2 class="table-title">
+    Distribution history
+  </h2>
 
   <div class="table-wrapper">
     <table>
       <thead>
         <tr>
-          <th>
-            Declared Date
-          </th>
-
-          <th>
-            Dist./Share
-          </th>
-
-          <th>
-            ROC
-          </th>
-
-          <th>
-            Ex Date
-          </th>
-
-          <th>
-            Record Date
-          </th>
-
-          <th>
-            Payable Date
-          </th>
+          <th>Declared Date</th>
+          <th>Dist./Share</th>
+          <th>ROC</th>
+          <th>Ex Date</th>
+          <th>Record Date</th>
+          <th>Payable Date</th>
         </tr>
       </thead>
 
-      <tbody
-        id="history-body"
-      ></tbody>
+      <tbody id="history-body"></tbody>
     </table>
   </div>
 
@@ -287,30 +486,60 @@
         cache: "no-store"
       }
     );
+
     if (!response.ok) {
       throw new Error(
         "history.json을 불러오지 못했습니다."
       );
     }
 
-    const data =
-      await response.json();
+    const data = await response.json();
 
     const rows =
-      data.distributions;
+      Array.isArray(data.distributions)
+        ? data.distributions
+        : [];
 
-    const latest =
-      rows[0];
+    if (rows.length === 0) {
+      throw new Error(
+        "표시할 distribution 데이터가 없습니다."
+      );
+    }
 
-    const money =
-      (value) =>
-        `$${value.toFixed(4)}`;
+    const latest = rows[0];
 
-    const percent =
-      (value) =>
-        value === null
-          ? "-"
-          : `${value.toFixed(2)}%`;
+    const previous =
+      rows.length > 1
+        ? rows[1]
+        : null;
+
+    const money = (value) =>
+      `$${value.toFixed(4)}`;
+
+    const percent = (value) =>
+      value === null
+        ? "-"
+        : `${value.toFixed(2)}%`;
+
+    const signedMoney = (value) => {
+      const sign =
+        value > 0
+          ? "+"
+          : value < 0
+            ? "-"
+            : "";
+
+      return `${sign}$${Math.abs(value).toFixed(4)}`;
+    };
+
+    const signedPercentPoint = (value) => {
+      const sign =
+        value > 0
+          ? "+"
+          : "";
+
+      return `${sign}${value.toFixed(2)}%p`;
+    };
 
     document.querySelector(
       "#latest-date"
@@ -341,89 +570,374 @@
     ).href =
       data.source;
 
+    if (previous) {
+      const distributionChange =
+        latest.distributionPerShare -
+        previous.distributionPerShare;
+
+      document.querySelector(
+        "#distribution-change"
+      ).textContent =
+        `${signedMoney(
+          distributionChange
+        )} vs previous`;
+
+      const rocChangeElement =
+        document.querySelector(
+          "#roc-change"
+        );
+
+      if (
+        latest.rocPercent !== null &&
+        previous.rocPercent !== null
+      ) {
+        const rocChange =
+          latest.rocPercent -
+          previous.rocPercent;
+
+        rocChangeElement.textContent =
+          `${signedPercentPoint(
+            rocChange
+          )} vs previous`;
+      } else {
+        rocChangeElement.textContent =
+          "비교할 ROC 없음";
+      }
+    }
+
     document.querySelector(
       "#history-body"
     ).innerHTML =
-      rows.map(
-        (row) => `
-          <tr>
-            <td>
-              ${row.declaredDate}
-            </td>
+      rows
+        .map(
+          (row) => `
+            <tr>
+              <td>
+                ${row.declaredDate}
+              </td>
 
-            <td>
-              ${money(
-                row.distributionPerShare
-              )}
-            </td>
+              <td>
+                ${money(
+                  row.distributionPerShare
+                )}
+              </td>
 
-            <td>
-              ${percent(
-                row.rocPercent
-              )}
-            </td>
+              <td>
+                ${percent(
+                  row.rocPercent
+                )}
+              </td>
 
-            <td>
-              ${row.exDate}
-            </td>
+              <td>
+                ${row.exDate}
+              </td>
 
-            <td>
-              ${row.recordDate}
-            </td>
+              <td>
+                ${row.recordDate}
+              </td>
 
-            <td>
-              ${row.payableDate}
-            </td>
-          </tr>
-        `
-      ).join("");
+              <td>
+                ${row.payableDate}
+              </td>
+            </tr>
+          `
+        )
+        .join("");
 
     const chronological =
       [...rows].reverse();
 
-    new Chart(
-      document.querySelector(
-        "#roc-chart"
-      ),
-      {
-        type: "line",
+    let chart = null;
 
-        data: {
-          labels:
-            chronological.map(
-              (row) =>
-                row.declaredDate
-            ),
+    let currentRange = 26;
 
-          datasets: [
-            {
-              label:
-                "Estimated ROC (%)",
+    const shortDate = (value) => {
+      const [
+        year,
+        month,
+        day
+      ] = value.split("-");
 
-              data:
-                chronological.map(
-                  (row) =>
-                    row.rocPercent
-                )
-            }
-          ]
-        },
+      return `${month}/${day}`;
+    };
 
-        options: {
-          responsive: true,
+    const visibleRows = () => {
+      if (
+        currentRange === "all"
+      ) {
+        return chronological;
+      }
 
-          maintainAspectRatio:
-            false,
+      return chronological.slice(
+        -currentRange
+      );
+    };
 
-          scales: {
-            y: {
-              min: 0,
-              max: 100
+    const renderChart = () => {
+      const chartRows =
+        visibleRows();
+
+      if (chart) {
+        chart.destroy();
+      }
+
+      chart = new Chart(
+        document.querySelector(
+          "#history-chart"
+        ),
+        {
+          type: "bar",
+
+          data: {
+            labels:
+              chartRows.map(
+                (row) =>
+                  shortDate(
+                    row.declaredDate
+                  )
+              ),
+
+            datasets: [
+              {
+                type: "bar",
+
+                label:
+                  "Distribution / Share",
+
+                data:
+                  chartRows.map(
+                    (row) =>
+                      row.distributionPerShare
+                  ),
+
+                yAxisID:
+                  "distribution",
+
+                backgroundColor:
+                  "rgba(37, 99, 235, 0.35)",
+
+                borderColor:
+                  "rgb(37, 99, 235)",
+
+                borderWidth: 1,
+
+                borderRadius: 3,
+
+                order: 2
+              },
+
+              {
+                type: "line",
+
+                label:
+                  "Estimated ROC",
+
+                data:
+                  chartRows.map(
+                    (row) =>
+                      row.rocPercent
+                  ),
+
+                yAxisID:
+                  "roc",
+
+                borderColor:
+                  "rgb(234, 88, 12)",
+
+                backgroundColor:
+                  "rgb(234, 88, 12)",
+
+                borderWidth: 2.5,
+
+                pointRadius: 3,
+
+                pointHoverRadius: 5,
+
+                tension: 0.2,
+
+                spanGaps: false,
+
+                order: 1
+              }
+            ]
+          },
+
+          options: {
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            interaction: {
+              mode: "index",
+              intersect: false
+            },
+
+            plugins: {
+              legend: {
+                position: "top",
+
+                labels: {
+                  usePointStyle: true,
+                  boxWidth: 10
+                }
+              },
+
+              tooltip: {
+                callbacks: {
+                  title(items) {
+                    if (
+                      items.length === 0
+                    ) {
+                      return "";
+                    }
+
+                    return chartRows[
+                      items[0].dataIndex
+                    ].declaredDate;
+                  },
+
+                  label(context) {
+                    if (
+                      context.dataset.yAxisID ===
+                      "distribution"
+                    ) {
+                      return (
+                        ` Distribution: ` +
+                        money(
+                          Number(
+                            context.raw
+                          )
+                        )
+                      );
+                    }
+
+                    if (
+                      context.raw === null
+                    ) {
+                      return (
+                        " Estimated ROC: -"
+                      );
+                    }
+
+                    return (
+                      ` Estimated ROC: ` +
+                      percent(
+                        Number(
+                          context.raw
+                        )
+                      )
+                    );
+                  }
+                }
+              }
+            },
+
+            scales: {
+              x: {
+                grid: {
+                  display: false
+                },
+
+                ticks: {
+                  autoSkip: true,
+                  maxTicksLimit: 9,
+                  maxRotation: 0,
+                  minRotation: 0
+                }
+              },
+
+              distribution: {
+                type: "linear",
+
+                position: "left",
+
+                beginAtZero: true,
+
+                title: {
+                  display: true,
+                  text: "Distribution / Share ($)"
+                },
+
+                ticks: {
+                  callback(value) {
+                    return (
+                      "$" +
+                      Number(value)
+                        .toFixed(2)
+                    );
+                  }
+                }
+              },
+
+              roc: {
+                type: "linear",
+
+                position: "right",
+
+                min: 0,
+                max: 100,
+
+                title: {
+                  display: true,
+                  text: "Estimated ROC (%)"
+                },
+
+                grid: {
+                  drawOnChartArea:
+                    false
+                },
+
+                ticks: {
+                  stepSize: 25,
+
+                  callback(value) {
+                    return `${value}%`;
+                  }
+                }
+              }
             }
           }
         }
-      }
-    );
+      );
+    };
+
+    document
+      .querySelectorAll(
+        ".range-button"
+      )
+      .forEach((button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            document
+              .querySelectorAll(
+                ".range-button"
+              )
+              .forEach(
+                (item) =>
+                  item.classList.remove(
+                    "active"
+                  )
+              );
+
+            button.classList.add(
+              "active"
+            );
+
+            currentRange =
+              button.dataset.range ===
+              "all"
+                ? "all"
+                : Number(
+                    button.dataset.range
+                  );
+
+            renderChart();
+          }
+        );
+      });
+
+    renderChart();
   </script>
 </body>
 </html>
