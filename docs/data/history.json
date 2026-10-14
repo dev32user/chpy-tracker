@@ -1,8 +1,16 @@
 {
   "ticker": "CHPY",
   "source": "https://yieldmaxetfs.com/our-etfs/chpy/",
-  "updatedAt": "2026-10-06T19:50:41.351Z",
+  "updatedAt": "2026-10-14T17:10:32.458Z",
   "distributions": [
+    {
+      "distributionPerShare": 0.514,
+      "declaredDate": "2026-10-13",
+      "exDate": "2026-10-14",
+      "recordDate": "2026-10-14",
+      "payableDate": "2026-10-15",
+      "rocPercent": 37.84
+    },
     {
       "distributionPerShare": 0.5847,
       "declaredDate": "2026-10-06",
